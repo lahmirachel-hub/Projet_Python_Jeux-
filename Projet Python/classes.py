@@ -1,7 +1,9 @@
- 
-# Le fichier ci-contre, classes.py contient la création des classes d'objets du jeu 
+ #Les filles le commentaire est à ajouté dans le doc du cours rapport expliquant le code - Menouha Rachel
+
+
+# Le fichier ci-contre, classes.py contient la création des classes d'objets du jeu.
 # Attention ce fichier doit absolument être dans le même répertoire que celui du code contenant
-# la pipeline global du jeu. (On va importer les classes créées ici, dans le code principal).
+# la pipeline global du jeu. (On va importer les classes créées d'ici, dans le code principal).
 # On procède ainsi pour que le code principal ne soit pas trop long et complexe. 
 
 import random
@@ -10,7 +12,8 @@ import random
 class Joueur:
     """Cette classe représente le joueur et son état complet(nom, prénom, nombre pas restants...)
       dans le jeu Blue Prince."""
-    # Constructeur
+    # Le constructeur nous est utile pour créer et initialiser un objet de la classe 
+    # (ici :  on initialise tous les attributs du joueur = son nom, sa position, son nombre de pas... )
     def __init__(self, nom, lignes, colonnes):
         # Correction de l'erreur: le premier paramètre doit être 'self'
         # et les attributs doivent être assignés à 'self'.
