@@ -5,17 +5,18 @@ from classes import Joueur, Room, TreasureRoom, TrapRoom
 
 pygame.init()
 
-# Dimensions
-CELL_SIZE = 45
-ROWS, COLS = 9, 5
-GRID_WIDTH = COLS * CELL_SIZE
-GRID_HEIGHT = ROWS * CELL_SIZE
-INVENTORY_HEIGHT = 150
-MENU_HEIGHT = 200
+# Dimensions du manoir et taille de l'interface
+CELL_SIZE = 45 #taille d'une case du manoir
+ROWS, COLS = 9, 5 #Def nombre lignes/colonnes de la grille du jeu
+GRID_WIDTH = COLS * CELL_SIZE #Largeur totale du manoir (grille du jeu)-en pixels
+GRID_HEIGHT = ROWS * CELL_SIZE #Hauteur totale du manoir (grille du jeu)-en pixels
+INVENTORY_HEIGHT = 150 #Hauteur en bas de l'écran réservé à l'affichage de l'inventaire
+MENU_HEIGHT = 200 #Autre bande en bas de la fenêtre reservé pour l'affichage du menu du jeu (bouton, action, choix de salle, message... )
 WINDOW_WIDTH = GRID_WIDTH + 300
 WINDOW_HEIGHT = GRID_HEIGHT + MENU_HEIGHT
+#Dimension finale totale de l'interface graphique du jeu
 
-# Couleurs
+# Couleurs du manoir 
 WHITE = (255, 255, 255)
 GRAY = (200, 200, 200)
 BLACK = (0, 0, 0)
@@ -30,11 +31,11 @@ selecting_room = False
 selected_index = 0
 room_choices = []
 
-# Fenêtre
+# Création fenêtre du jeu
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Blue Prince")
 
-# Fonts
+# Police d'écriture du jeu
 font = pygame.font.SysFont(None, 24)
 title_font = pygame.font.SysFont(None, 32)
 
