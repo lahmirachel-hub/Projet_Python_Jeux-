@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 from classes import Joueur, Room as ImportedRoom, TreasureRoom, TrapRoom
+from effet_random import niveau_verrou
 import os
 pygame.init()
 pygame.mixer.init()
@@ -68,17 +69,17 @@ images_pieces = {nom: pygame.image.load(chemin).convert_alpha() for nom, chemin 
 
 # Catalogue complet des pièces (uniquement celles dont l’image existe)
 catalogue_pieces = [
-    {"nom": "Bibliothèque", "image": images_pieces["Bibliothèque"], "description": "Utiliser une gemme pour redessiner", "cout": 1, "effet": None, "niveau_verrou": 0},
-    {"nom": "Couloir", "image": images_pieces["Couloir"], "description": "", "cout": 0, "effet": None, "niveau_verrou": 0},
-    {"nom": "Chambre", "image": images_pieces["Chambre"], "description": "Gagnez 2 pas en entrant", "cout": 0, "effet": "gain_steps", "niveau_verrou": 0},
-    {"nom": "Coffre", "image": images_pieces["Coffre"], "description": "Nécessite une clé pour entrer", "cout": 0, "effet": None, "niveau_verrou": 1},
-    {"nom": "Armurerie", "image": images_pieces["Armurerie"], "description": "Gagnez 1 clé en entrant", "cout": 0, "effet": "gain_key", "niveau_verrou": 0},
-    {"nom": "Cuisine", "image": images_pieces["Cuisine"], "description": "Acheter des fruits", "cout": 0, "effet": "gain_die", "niveau_verrou": 0},
-    {"nom": "Salle de sport", "image": images_pieces["Salle de sport"], "description": "Mystère", "cout": 1, "effet": None, "niveau_verrou": 1},
-    {"nom": "Salle obscure", "image": images_pieces["Salle obscure"], "description": "Salle obscure", "cout": 1, "effet": None, "niveau_verrou": 1},
-    {"nom": "Garage", "image": images_pieces["Garage"], "description": "Salle mécanique", "cout": 1, "effet": None, "niveau_verrou": 1},
-    {"nom": "Salle de repos", "image": images_pieces["Salle de repos"], "description": "Salle de repos", "cout": 0, "effet": None, "niveau_verrou": 0},
-    {"nom": "Salle des trophées", "image": images_pieces["Salle des trophées"], "description": "Gagnez une gemme", "cout": 2, "effet": "gain_gem", "niveau_verrou": 1}
+    {"nom": "Bibliothèque", "image": images_pieces["Bibliothèque"], "description": "Utiliser une gemme pour redessiner", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
+    {"nom": "Couloir", "image": images_pieces["Couloir"], "description": "", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou()},
+    {"nom": "Chambre", "image": images_pieces["Chambre"], "description": "Gagnez 2 pas en entrant", "cout": 0, "effet": "gain_steps", "niveau_verrou": niveau_verrou()},
+    {"nom": "Coffre", "image": images_pieces["Coffre"], "description": "Nécessite une clé pour entrer", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou()},
+    {"nom": "Armurerie", "image": images_pieces["Armurerie"], "description": "Gagnez 1 clé en entrant", "cout": 0, "effet": "gain_key", "niveau_verrou": niveau_verrou()},
+    {"nom": "Cuisine", "image": images_pieces["Cuisine"], "description": "Acheter des fruits", "cout": 0, "effet": "gain_die", "niveau_verrou": niveau_verrou()},
+    {"nom": "Salle de sport", "image": images_pieces["Salle de sport"], "description": "Mystère", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
+    {"nom": "Salle obscure", "image": images_pieces["Salle obscure"], "description": "Salle obscure", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
+    {"nom": "Garage", "image": images_pieces["Garage"], "description": "Salle mécanique", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
+    {"nom": "Salle de repos", "image": images_pieces["Salle de repos"], "description": "Salle de repos", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou()},
+    {"nom": "Salle des trophées", "image": images_pieces["Salle des trophées"], "description": "Gagnez une gemme", "cout": 2, "effet": "gain_gem", "niveau_verrou": niveau_verrou()}
 ]
 
 # Classe Salle
