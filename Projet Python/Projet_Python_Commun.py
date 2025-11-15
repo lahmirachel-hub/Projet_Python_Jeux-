@@ -1,20 +1,31 @@
 import pygame
 import sys
 import random
-from classes import Joueur, Room, TreasureRoom, TrapRoom
-
+from classes import Joueur, Room as ImportedRoom, TreasureRoom, TrapRoom
+import os
 pygame.init()
+pygame.mixer.init()
+# Initialisations des sons de start, game over et victory
+start_sound = pygame.mixer.Sound("sounds/start.wav")
+victory_sound = pygame.mixer.Sound("sounds/victory.wav")
+defeat_sound = pygame.mixer.Sound("sounds/defeat.wav")
 
-# Dimensions du manoir et taille de l'interface
-CELL_SIZE = 45 #taille d'une case du manoir
-ROWS, COLS = 9, 5 #Def nombre lignes/colonnes de la grille du jeu
-GRID_WIDTH = COLS * CELL_SIZE #Largeur totale du manoir (grille du jeu)-en pixels
-GRID_HEIGHT = ROWS * CELL_SIZE #Hauteur totale du manoir (grille du jeu)-en pixels
-INVENTORY_HEIGHT = 150 #Hauteur en bas de l'écran réservé à l'affichage de l'inventaire
-MENU_HEIGHT = 200 #Autre bande en bas de la fenêtre reservé pour l'affichage du menu du jeu (bouton, action, choix de salle, message... )
+
+# Dimensions
+CELL_SIZE = 45
+ROWS, COLS = 9, 5
+GRID_WIDTH = COLS * CELL_SIZE
+GRID_HEIGHT = ROWS * CELL_SIZE
+
+INVENTORY_HEIGHT = 150
+MENU_HEIGHT = 200
 WINDOW_WIDTH = GRID_WIDTH + 300
 WINDOW_HEIGHT = GRID_HEIGHT + MENU_HEIGHT
-#Dimension finale totale de l'interface graphique du jeu
+
+# Crée la fenêtre AVANT de charger les images
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Blue Prince")
+
 
 # Couleurs du manoir 
 WHITE = (255, 255, 255)
@@ -25,49 +36,37 @@ PURPLE = (186, 85, 211)
 BROWN = (160, 82, 45)
 GOLD = (218, 165, 32)
 DARK_GRAY = (105, 105, 105)
-
 # Autres
 selecting_room = False
 selected_index = 0
 room_choices = []
-
-# Création fenêtre du jeu
-window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption("Blue Prince")
-
 # Police d'écriture du jeu
 font = pygame.font.SysFont(None, 24)
 title_font = pygame.font.SysFont(None, 32)
 
-"""# Inventaire
-inventory = {
-    "Pas": 70,
-    "Or": 0,
-    "Gemmes": 2,
-    "Clés": 1,
-    "Dés": 0
-}"""
-
 
 # Associer au chambre les différentes images :
-    # IL FAUT REMPLACER LES CHEMINS AVEC LE DOSSIER OU LES IMG SONT ENREGISTRÉ "/CHEMIN/NOM_ROOM.png"
+# Chemins relatifs vers les images (basé sur les fichiers que tu as)
 image_paths = {
-    "Study": "/Users/mc/Desktop/Projet_python/image/Study.png",
-    "Corridor": "/Users/mc/Desktop/Projet_python/image/Corridor_Icon.png",
-    "Bedroom": "/Users/mc/Desktop/Projet_python/image/Bedroom.png",
-    "Vault": "/Users/mc/Desktop/Projet_python/image/vault.png",
-    "Armory": "/Users/mc/Desktop/Projet_python/image/The_Armory_Icon.png",
-    "Kitchen": "/Users/mc/Desktop/Projet_python/image/kitchen.png",
-    "Antichambre": "/Users/mc/Desktop/Projet_python/image/Antechamber_Icon.png",
-    "weight Room":"/Users/mc/Desktop/Projet_python/image/weight Room.png",
-    "Entrance Hall": "/Users/mc/Desktop/Projet_python/image/Entrance Hall.png"
+    "Study": os.path.join("image", "Study.png"),
+    "Corridor": os.path.join("image", "Corridor_Icon.png"),
+    "Bedroom": os.path.join("image", "Bedroom.png"),
+    "Vault": os.path.join("image", "vault.png"),
+    "Armory": os.path.join("image", "The_Armory_Icon.png"),
+    "Kitchen": os.path.join("image", "kitchen.png"),
+    "Antichamber": os.path.join("image", "Antechamber_Icon.png"),
+    "Weight Room": os.path.join("image", "weight Room.png"),
+    "Entrance Hall": os.path.join("image", "Entrance Hall.png"),
+    "Darkroom": os.path.join("image", "Darkroom.png"),
+    "Garage": os.path.join("image", "Garage.png"),
+    "Spare Room": os.path.join("image", "SpareRoom.png"),
+    "Trophy Room": os.path.join("image", "TrophyRoom.png")
 }
 
+# Chargement des images
 room_images = {name: pygame.image.load(path).convert_alpha() for name, path in image_paths.items()}
 
-
-
-# Catalogue complet des pièces
+# Catalogue complet des pièces (uniquement celles dont l’image existe)
 all_rooms_catalog = [
     {"name": "Study", "image": room_images["Study"], "desc": "Use gems to redraw", "cost": 1, "effect": None, "locked_level": 0},
     {"name": "Corridor", "image": room_images["Corridor"], "desc": "", "cost": 0, "effect": None, "locked_level": 0},
@@ -75,28 +74,35 @@ all_rooms_catalog = [
     {"name": "Vault", "image": room_images["Vault"], "desc": "Requires key to enter", "cost": 0, "effect": None, "locked_level": 1},
     {"name": "Armory", "image": room_images["Armory"], "desc": "Gain 1 key when visited", "cost": 0, "effect": "gain_key", "locked_level": 0},
     {"name": "Kitchen", "image": room_images["Kitchen"], "desc": "Buy fruits", "cost": 0, "effect": "gain_die", "locked_level": 0},
-    {"name": "weight Room", "image": room_images["weight Room"], "desc": "mystère", "cost": 1, "effect": None, "locked_level": 1},
-    {"name": "Safe Room", "image": room_images["Secret Room"], "cost": 4, "class": TreasureRoom}, 
-    {"name": "Spikes Trap", "image": room_images["Trap Room"], "cost": 0, "class": TrapRoom},    
+    {"name": "Weight Room", "image": room_images["Weight Room"], "desc": "Mystère", "cost": 1, "effect": None, "locked_level": 1},
+    {"name": "Darkroom", "image": room_images["Darkroom"], "desc": "Salle obscure", "cost": 1, "effect": None, "locked_level": 1},
+    {"name": "Garage", "image": room_images["Garage"], "desc": "Salle mécanique", "cost": 1, "effect": None, "locked_level": 1},
+    {"name": "Spare Room", "image": room_images["Spare Room"], "desc": "Salle de repos", "cost": 0, "effect": None, "locked_level": 0},
+    {"name": "Trophy Room", "image": room_images["Trophy Room"], "desc": "Salle des trophées", "cost": 2, "effect": "gain_gem", "locked_level": 1}
 ]
+
+
 
 
 # Classe Room
 class Room:
-    def __init__(self, name="Unknown", image = None, discovered=False, effect=None, locked_level=0):
+    def __init__(self, name="Unknown", image = None, discovered=False, effect=None, locked_level=0, requires_key=False):
         self.name = name
         self.image = image
         self.discovered = discovered
         self.effect = effect
         self.effect_triggered = False
         self.locked_level = locked_level
+        self.requires_key = requires_key
+    
+    def trigger_effect(self, player):
+        pass
+    
 
 # Grille du manoir
 grid = [[Room() for _ in range(COLS)] for _ in range(ROWS)]
 grid[8][2] = Room(name="Entrance Hall", image=room_images["Entrance Hall"], discovered=True)
-
-"""# Position initiale du joueur
-player_pos = [8, 2]"""
+grid[0][2] = Room(name="Antichamber", image=room_images["Antichamber"], discovered=True)
 
 # Position initiale du joueur
 # Créer une instance de votre joueur
@@ -182,11 +188,32 @@ def draw_game_over():
     text = title_font.render("Game is over!", True, (200, 0, 0))
     rect = text.get_rect(center=(GRID_WIDTH // 2, GRID_HEIGHT // 2))
     window.blit(text, rect)
+# fonction d'affichage d'un message défaite+ écran  
+def draw_defeat():
+    window.fill((0, 0, 139))  # définition d'un écran bleu
+    #font = pygame.font.SysFont("Arial", 80)  # taille plus grande
+    font = pygame.font.Font("style/Signtelly.ttf", 50)
+    text = font.render("GAME OVER!", True, (220, 20, 60))
+    rect = text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+    window.blit(text, rect)
+    pygame.display.update()
+# fonction d'affichage d'un message victoire
+def draw_victory():
+    window.fill((0, 0, 139))  # fond bleu clair (SteelBlue)
+    #font = pygame.font.SysFont("Arial", 80)  # taille grande comme pour GAME OVER
+    font = pygame.font.Font("style/Signtelly.ttf", 50)
+    text = font.render("VICTOIRE!", True, (255, 215, 0))# ((255, 215, 0))pour une couleur doré 
+    rect = text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+    window.blit(text, rect)
+    pygame.display.update()
+
 
 # Boucle principale
 def main():
     global selecting_room, selected_index, room_choices
     clock = pygame.time.Clock()
+    start_sound.play() # initialisation avec un son pour start 
+
     while True:
         window.fill(WHITE)
 
@@ -320,7 +347,29 @@ def main():
         draw_inventory()
         draw_room_choices()
         if player.inventaire["Pas"] <= 0:
-            draw_game_over()
+             print("Défaite 😢😢 Plus de pas disponibles")
+             defeat_sound.play()   # joue le son de défaite
+             draw_defeat()         # écran rouge avec texte Défaite
+             pygame.time.wait(3000)
+             pygame.quit()
+             sys.exit()
+        current_room = grid[player.position[0]][player.position[1]]
+        if current_room.requires_key and player.inventaire["Clé"] <= 0:
+            print("Défaite! Vous n'avez plus de clé pour entrer dans cette salle")
+            defeat_sound.play()
+            draw_defeat()
+            pygame.time.wait(3000)
+            pygame.quit()
+            sys.exit() 
+
+        if player.position == [0, 2]:  # condition de victoire
+            print("Victoire! Vous avez atteint l'Antichamber !")
+            victory_sound.play()
+            draw_victory()
+            pygame.time.wait(3000)
+            pygame.quit()
+            sys.exit()
+        
         pygame.display.update()
         clock.tick(60)
 

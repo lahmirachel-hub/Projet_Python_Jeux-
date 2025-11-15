@@ -29,8 +29,8 @@ class Joueur:
             "Pas": 70,       # Initialement à 70 [cite: 246]
             "Or": 0,         # Initialement à 0 [cite: 247]
             "Gemmes": 2,     # Initialement à 2 [cite: 248]
-            "Clés": 0,       # Initialement à 0 (le code Pygame utilise 1, nous suivons l'énoncé) [cite: 249]
-            "Dés": 0         # Initialement à 0 [cite: 250]
+            "Clés": 2,       # Initialement à 0 (le code Pygame utilise 1, nous suivons l'énoncé) [cite: 249]
+            "Dés": 2         # Initialement à 0 [cite: 250]
         }
         
         # Objets permanents (non implémentés dans le Pygame de Bousadia, mais prêts)
