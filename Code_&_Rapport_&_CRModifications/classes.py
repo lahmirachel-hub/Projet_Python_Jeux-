@@ -212,17 +212,18 @@ COLLECTABLES_CATALOGUE = [
     
     # Objet de type trésors, ce sont des objets consommables que le joueur peut  trouver dans les coffres, les endroits où creuser
     # ou les casiers . Effet = incrémentent le nombre de gemmes ou de piéces d'or
-    ObjetCollectable(name="Bourse lourde", resource_key="Or", amount=5, type_item="Trésor"),
-    ObjetCollectable(name="Perle rare", resource_key="Gemmes", amount=1, type_item="Trésor"),
-    ObjetCollectable(name="Bourse légère", resource_key="Or", amount=2, type_item="Trésor"),
+    ObjetCollectable(nom="Bourse lourde", resource_cle="Or", montant=5, type_objet="Trésor"),
+    ObjetCollectable(nom="Perle rare", resource_cle="Gemmes", montant=1, type_objet="Trésor"),
+    ObjetCollectable(nom="Bourse légère", resource_cle="Or", montant=2, type_objet="Trésor"),
 
     # Objet de type outils ou chance : ce sont aussi des objets consommables que le joueur peut  trouver dans les coffres, les endroits où creuser
     # ou les casiers . Effet = incrémentent le nombre de dés ou de clé
-    ObjetCollectable(name="Jeton Chanceux", resource_key="Dés", amount=1, type_item="Outil"),
-    ObjetCollectable(name="Clé de Secours", resource_key="Clés", amount=1, type_item="Outil"),
-    ObjetCollectable(name="Dé Pipé", resource_key="Dés", amount=2, type_item="Outil"),
+    ObjetCollectable(nom="Jeton Chanceux", resource_cle="Dés", montant=1, type_objet="Outil"),
+    ObjetCollectable(nom="Clé de Secours", resource_cle="Clés", montant=1, type_objet="Outil"),
+    ObjetCollectable(nom="Dé Pipé", resource_cle="Dés", montant=2, type_objet="Outil"),
 ]
 
 # Objet spécifique pour les endroits où creuser ou les casiers. On crée un objet vide dans le cas où ils ne contiennent rien 
-ECHEC_BUTIN = ObjetCollectable(name="Rien de valeur", resource_key="Pas", amount=0, type_item="Échec")
+ECHEC_BUTIN = ObjetCollectable(nom="Rien de valeur", resource_cle="Pas", montant=0, type_objet="Échec")
+
 

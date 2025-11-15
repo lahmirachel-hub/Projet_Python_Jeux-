@@ -2,7 +2,6 @@ import pygame
 import sys
 import random
 from classes import Joueur, Room as ImportedRoom, TreasureRoom, TrapRoom
-from effet_random import niveau_verrou
 import os
 pygame.init()
 pygame.mixer.init()
@@ -66,6 +65,10 @@ chemins_images = {
 
 # Chargement des images
 images_pieces = {nom: pygame.image.load(chemin).convert_alpha() for nom, chemin in chemins_images.items()}
+
+def niveau_verrou():
+    numero_verrou = random.randint(0,2)
+    return numero_verrou
 
 # Catalogue complet des pièces (uniquement celles dont l’image existe)
 catalogue_pieces = [
