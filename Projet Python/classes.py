@@ -17,7 +17,7 @@ class Joueur:
     def __init__(self, nom, lignes, colonnes):
         # Correction de l'erreur: le premier paramètre doit être 'self'
         # et les attributs doivent être assignés à 'self'.
-        
+
         self.nom = nom
         # Position initiale du joueur : (ligne, colonne). 8, 2 correspond à 'Entrance Hall'
         self.position = [8, 2] 
@@ -77,7 +77,6 @@ class Joueur:
         return None, None # Déplacement impossible
     
 
-# === FICHIER: classes.py (Classe Room) ===
 
 class Room:
     def trigger_effect(self, player):
@@ -165,3 +164,65 @@ class TrapRoom(Room):
             self.effect_triggered = True
             return True
         return False
+
+# Création classe des objets collectables au cours du jeu = représente les objets dissimulés dans le jeu (nourriture, ressources...).
+# Ces objets sont ajoutés à l'inventaire du joueur lorsqu'il les trouve. 
+class ObjetCollectable:
+    
+    def __init__(self, nom , resource_cle, montant, type_objet ="Consommable"):
+        """Constructeur de la classe Collectable.
+        :param nom = Nom de l'objet (par ex = pomme).
+        :param resource_cle = Élément de l'inventaire à modifier (par ex = Pas).
+        :param montant: Montant à ajouter à l'inventaire (pour l'incrémentation des pas par exemple).
+        """
+        self.nom = nom
+        self.resource_cle = resource_cle
+        self.montant = montant
+        self.type_objet = type_objet # On définit le type d'objet à ajouter ou modifier dans l'inventaire 
+        # (Nourriture, coffres, casiers...)
+
+    def appli_effets(self, player):
+        """Cette fonction applique l'effet de l'objet sur l'inventaire du joueur
+        (par exemple s'il trouve une pomme, il gagne 2 pas).
+        Elle ajoute la ressource à l'inventaire du joueur.
+        Le paramètre player représente la classe Joueur dans laquelle se trouve l'inventaire à modifier.
+        """
+        # On utilise un if 
+        # Si la ressource (une clé par ex) existe dans l'inventaire du joueur, alors on l'implémente 
+        # selon le montant supplémentaire donné par l'objet trouvé.
+        if self.resource_cle in player.inventaire:
+            player.inventaire[self.resource_cle] += self.montant
+            print(f"Objet trouvé : {self.nom} ! +{self.montant} {self.resource_cle}.")
+            print (f"Bravo! Vous avez gagné {self.montant} {self.resource_cle}")
+            return True
+        else:
+            print(f"Bugg : La ressource {self.resource_cle} n'existe pas dans l'inventaire.")
+            return False
+
+
+# On définit un catalogue d'objets spécifiques pour placer ensuite avec un 
+# tirage alétoire ces objets dans le manoir (dans les différentes pièces)
+COLLECTABLES_CATALOGUE = [
+    # Objet de type Nourriture. Effet = incrémente le nombre de pas : 
+    ObjetCollectable(nom="Pomme", resource_cle="Pas", montant= 2,type_objet="Nourriture"),
+    ObjetCollectable(nom="Banane",resource_cle="Pas", montant=3, type_objet="Nourriture" ),
+    ObjetCollectable(nom="Gâteau", resource_cle="Pas", montant=10,type_objet="Nourriture"),
+    ObjetCollectable(nom="Sandwich", resource_cle="Pas", montant=15, type_objet="Nourriture"),
+    ObjetCollectable(nom="Repas", resource_cle="Pas", montant= 25,type_objet="Nourriture"),
+    
+    # Objet de type trésors, ce sont des objets consommables que le joueur peut  trouver dans les coffres, les endroits où creuser
+    # ou les casiers . Effet = incrémentent le nombre de gemmes ou de piéces d'or
+    ObjetCollectable(name="Bourse lourde", resource_key="Or", amount=5, type_item="Trésor"),
+    ObjetCollectable(name="Perle rare", resource_key="Gemmes", amount=1, type_item="Trésor"),
+    ObjetCollectable(name="Bourse légère", resource_key="Or", amount=2, type_item="Trésor"),
+
+    # Objet de type outils ou chance : ce sont aussi des objets consommables que le joueur peut  trouver dans les coffres, les endroits où creuser
+    # ou les casiers . Effet = incrémentent le nombre de dés ou de clé
+    ObjetCollectable(name="Jeton Chanceux", resource_key="Dés", amount=1, type_item="Outil"),
+    ObjetCollectable(name="Clé de Secours", resource_key="Clés", amount=1, type_item="Outil"),
+    ObjetCollectable(name="Dé Pipé", resource_key="Dés", amount=2, type_item="Outil"),
+]
+
+# Objet spécifique pour les endroits où creuser ou les casiers. On crée un objet vide dans le cas où ils ne contiennent rien 
+ECHEC_BUTIN = ObjetCollectable(name="Rien de valeur", resource_key="Pas", amount=0, type_item="Échec")
+
