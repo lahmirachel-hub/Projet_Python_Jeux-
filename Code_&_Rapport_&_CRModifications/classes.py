@@ -89,22 +89,37 @@ class Salle:
         self.necessite_cle = necessite_cle
     
     def declencher_effet(self, joueur):
-        pass
-
-    
-
-
+        """Déclenche l'effet de la salle sur le joueur si l'effet n'a pas encore été déclenché"""
+        if self.effet_declenche:
+            return
+            
+        if self.effet == "gain_steps":
+            joueur.inventaire["Pas"] += 2
+            self.effet_declenche = True
+            print("Youpi! +2 pas")
+        elif self.effet == "gain_key":
+            joueur.inventaire["Clés"] += 1
+            self.effet_declenche = True
+            print("Youpi! +1 clé")
+        elif self.effet == "gain_die":
+            joueur.inventaire["Dés"] += 1
+            self.effet_declenche = True
+            print("Youpi! +1 dé")
+        elif self.effet == "gain_gem":
+            joueur.inventaire["Gemmes"] += 1
+            self.effet_declenche = True
+            print("Youpi! +1 gemme")
 
 # Création classe des objets collectables au cours du jeu = représente les objets dissimulés dans le jeu (nourriture...).
 # Ces objets sont ajoutés à l'inventaire du joueur lorsqu'il les trouve. 
 class ObjetCollectable:
     
-    def __init__(self, nom , resource_cle, montant, type_objet ="Consommable"):
+    def __init__(self, nom, resource_cle, montant, type_objet="Consommable"):
         """On crée un constructeur de la classe ObjetCollectable pour initialiser les objets collectables. 
         Le paramètre nom représente le nom de l'objet (par ex = pomme).
         Le paramètre ressource_cle représente l'élément de l'inventaire à modifier (par ex = Pas).
         Le paramètre montant représente le montant à ajouter à l'inventaire (pour l'incrémentation des pas par exemple).
-        Le paramètre type_objet représente le type d'objet à  modifier dans l'inventaire 
+        Le paramètre type_objet représente le type d'objet à modifier dans l'inventaire 
         # (Nourriture). 
         """
         self.nom = nom
@@ -124,7 +139,17 @@ class ObjetCollectable:
         if self.resource_cle in player.inventaire:
             player.inventaire[self.resource_cle] += self.montant
             print(f"Objet trouvé : {self.nom} ! +{self.montant} {self.resource_cle}.")
-            print (f"Bravo! Vous avez gagné {self.montant} {self.resource_cle}")
+            print(f"Bravo! Vous avez gagné {self.montant} {self.resource_cle}")
+            
+            # Si c'est un objet permanent, on active aussi le flag correspondant
+            if self.type_objet == "Permanent":
+                if self.nom == "Kit de crochetage":
+                    player.objets_permanents["Kit de crochetage"] = True
+                elif self.nom == "Détecteur de métaux":
+                    player.objets_permanents["Détecteur de métaux"] = True
+                elif self.nom == "Patte de lapin":
+                    player.objets_permanents["Patte de lapin"] = True
+            
             return True
         else:
             print(f"Bugg : La ressource {self.resource_cle} n'existe pas dans l'inventaire.")
@@ -132,33 +157,38 @@ class ObjetCollectable:
 
 
 # On définit un catalogue d'objets spécifiques pour placer ensuite avec un 
-# tirage alétoire ces objets dans le manoir (dans les différentes pièces)
+# tirage aléatoire ces objets dans le manoir (dans les différentes pièces)
+# CORRECTION: On crée des objets individuels au lieu de listes
 COLLECTABLES_CATALOGUE = [
     # Objet de type Nourriture. Effet = incrémente le nombre de pas : 
-    [ObjetCollectable(nom="Pomme", resource_cle="Pas", montant= 2,type_objet="Nourriture") for _ in range(2, 7)],
-    [ObjetCollectable(nom="Banane",resource_cle="Pas", montant=3, type_objet="Nourriture" ) for _ in range(2, 5)],
-    [ObjetCollectable(nom="Gâteau", resource_cle="Pas", montant=10,type_objet="Nourriture") for _ in range(1, 4)],
-    [ObjetCollectable(nom="Sandwich", resource_cle="Pas", montant=15, type_objet="Nourriture") for _ in range(3)],
-    [ObjetCollectable(nom="Repas", resource_cle="Pas", montant= 25,type_objet="Nourriture") for _ in range(2)],
-    [ObjetCollectable(nom="Kit de crochetage", resource_cle="KitCrochetage", montant=1, type_objet="Permanent")],
-    [ObjetCollectable(nom="Détecteur de métaux", resource_cle="DetecteurMetaux", montant=1, type_objet="Permanent")],
-    [ObjetCollectable(nom="Patte de lapin", resource_cle="PatteDeLapin", montant=1, type_objet="Permanent")]
+    ObjetCollectable(nom="Pomme", resource_cle="Pas", montant=2, type_objet="Nourriture"),
+    ObjetCollectable(nom="Pomme", resource_cle="Pas", montant=2, type_objet="Nourriture"),
+    ObjetCollectable(nom="Pomme", resource_cle="Pas", montant=2, type_objet="Nourriture"),
+    ObjetCollectable(nom="Banane", resource_cle="Pas", montant=3, type_objet="Nourriture"),
+    ObjetCollectable(nom="Banane", resource_cle="Pas", montant=3, type_objet="Nourriture"),
+    ObjetCollectable(nom="Gâteau", resource_cle="Pas", montant=10, type_objet="Nourriture"),
+    ObjetCollectable(nom="Gâteau", resource_cle="Pas", montant=10, type_objet="Nourriture"),
+    ObjetCollectable(nom="Sandwich", resource_cle="Pas", montant=15, type_objet="Nourriture"),
+    ObjetCollectable(nom="Sandwich", resource_cle="Pas", montant=15, type_objet="Nourriture"),
+    ObjetCollectable(nom="Repas", resource_cle="Pas", montant=25, type_objet="Nourriture"),
+    ObjetCollectable(nom="Kit de crochetage", resource_cle="KitCrochetage", montant=1, type_objet="Permanent"),
+    ObjetCollectable(nom="Détecteur de métaux", resource_cle="DetecteurMetaux", montant=1, type_objet="Permanent"),
+    ObjetCollectable(nom="Patte de lapin", resource_cle="PatteDeLapin", montant=1, type_objet="Permanent"),
+    # Ajout de quelques clés et gemmes
+    ObjetCollectable(nom="Clé", resource_cle="Clés", montant=1, type_objet="Consommable"),
+    ObjetCollectable(nom="Clé", resource_cle="Clés", montant=1, type_objet="Consommable"),
+    ObjetCollectable(nom="Gemme", resource_cle="Gemmes", montant=1, type_objet="Consommable"),
 ]
 
     
 class PLACEMENT_OBJET:
     """
     Cette classe définit la position et l'état de collecte d'un objet en particulier
-    
     """
     def __init__(self, objet, position):
         self.objet = objet
         self.position = position
         self.collecte = False
-
-
-
-
 
 
 

@@ -50,7 +50,7 @@ VIOLET = (186, 85, 211)
 MARRON = (160, 82, 45)
 OR = (218, 165, 32)
 GRIS_FONCE = (105, 105, 105)
-# Lignes nécessaire au choix des pièces après tirage alétoire 
+# Lignes nécessaire au choix des pièces après tirage aléatoire 
 selection_piece = False
 index_selection = 0
 choix_pieces = []
@@ -95,24 +95,56 @@ chemins_images = {
 images_pieces = {nom: pygame.image.load(chemin).convert_alpha() for nom, chemin in chemins_images.items()}
 
 def niveau_verrou():
-    numero_verrou = random.randint(0,2)
+    """Génère un niveau de verrou aléatoire (0, 1 ou 2)"""
+    numero_verrou = random.randint(0, 2)
     return numero_verrou
 
-# Catalogue complet des pièces (uniquement celles dont l’image existe)
+# Catalogue complet des pièces (uniquement celles dont l'image existe)
+# AJOUT: attribut "rarete" pour chaque pièce (0 = commun, 1 = peu commun, 2 = rare, 3 = très rare)
 catalogue_pieces = [
-    {"nom": "Bibliothèque", "image": images_pieces["Bibliothèque"], "description": "Utiliser une gemme pour redessiner", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
-    {"nom": "Couloir", "image": images_pieces["Couloir"], "description": "", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou()},
-    {"nom": "Chambre", "image": images_pieces["Chambre"], "description": "Gagnez 2 pas en entrant", "cout": 0, "effet": "gain_steps", "niveau_verrou": niveau_verrou()},
-    {"nom": "Coffre", "image": images_pieces["Coffre"], "description": "Nécessite une clé pour entrer", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou()},
-    {"nom": "Armurerie", "image": images_pieces["Armurerie"], "description": "Gagnez 1 clé en entrant", "cout": 0, "effet": "gain_key", "niveau_verrou": niveau_verrou()},
-    {"nom": "Cuisine", "image": images_pieces["Cuisine"], "description": "Gagnez un aliment", "cout": 0, "effet": "gain_nourriture", "niveau_verrou": niveau_verrou()},
-    {"nom": "Salle de sport", "image": images_pieces["Salle de sport"], "description": "Mystère", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
-    {"nom": "Salle obscure", "image": images_pieces["Salle obscure"], "description": "Salle obscure", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
-    {"nom": "Garage", "image": images_pieces["Garage"], "description": "Salle mécanique", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
-    {"nom": "Salle de repos", "image": images_pieces["Salle de repos"], "description": "Salle de repos", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou()},
-    {"nom": "Salle des trophées", "image": images_pieces["Salle des trophées"], "description": "Gagnez une gemme", "cout": 2, "effet": "gain_gem", "niveau_verrou": niveau_verrou()}
+    {"nom": "Bibliothèque", "image": images_pieces["Bibliothèque"], "description": "Utiliser une gemme pour redessiner", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 1},
+    {"nom": "Couloir", "image": images_pieces["Couloir"], "description": "", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 0},
+    {"nom": "Chambre", "image": images_pieces["Chambre"], "description": "Gagnez 2 pas en entrant", "cout": 0, "effet": "gain_steps", "niveau_verrou": niveau_verrou(), "rarete": 0},
+    {"nom": "Coffre", "image": images_pieces["Coffre"], "description": "Nécessite une clé pour entrer", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 2},
+    {"nom": "Armurerie", "image": images_pieces["Armurerie"], "description": "Gagnez 1 clé en entrant", "cout": 0, "effet": "gain_key", "niveau_verrou": niveau_verrou(), "rarete": 1},
+    {"nom": "Cuisine", "image": images_pieces["Cuisine"], "description": "Gagnez un aliment", "cout": 0, "effet": "gain_nourriture", "niveau_verrou": niveau_verrou(), "rarete": 0},
+    {"nom": "Salle de sport", "image": images_pieces["Salle de sport"], "description": "Mystère", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 1},
+    {"nom": "Salle obscure", "image": images_pieces["Salle obscure"], "description": "Salle obscure", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 2},
+    {"nom": "Garage", "image": images_pieces["Garage"], "description": "Salle mécanique", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 1},
+    {"nom": "Salle de repos", "image": images_pieces["Salle de repos"], "description": "Salle de repos", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 0},
+    {"nom": "Salle des trophées", "image": images_pieces["Salle des trophées"], "description": "Gagnez une gemme", "cout": 2, "effet": "gain_gem", "niveau_verrou": niveau_verrou(), "rarete": 2}
 ]
 
+
+# NOUVELLE FONCTION: Tirer des pièces en tenant compte de la rareté
+def tirer_pieces_avec_rarete(catalogue, nombre=3):
+    """
+    Tire des pièces aléatoirement en tenant compte de leur rareté.
+    Rareté 0 = probabilité 1
+    Rareté 1 = probabilité 1/3
+    Rareté 2 = probabilité 1/9
+    Rareté 3 = probabilité 1/27
+    S'assure qu'au moins une pièce coûte 0 gemmes.
+    """
+    if len(catalogue) < nombre:
+        return catalogue
+    
+    # Calculer les poids en fonction de la rareté
+    poids = []
+    for piece in catalogue:
+        rarete = piece.get("rarete", 0)
+        poids.append(1 / (3 ** rarete))
+    
+    # Tirer les pièces avec les poids
+    choix = random.choices(catalogue, weights=poids, k=nombre)
+    
+    # S'assurer qu'au moins une pièce coûte 0 gemmes
+    if not any(p["cout"] == 0 for p in choix):
+        pieces_gratuites = [p for p in catalogue if p["cout"] == 0]
+        if pieces_gratuites:
+            choix[0] = random.choice(pieces_gratuites)
+    
+    return choix
 
     
 
@@ -122,33 +154,27 @@ grille[8][2] = Salle(nom="Hall d'entrée", image=images_pieces["Hall d'entrée"]
 grille[0][2] = Salle(nom="Antichambre", image=images_pieces["Antichambre"], decouverte=True)
 
 # Position intiale du joueur 
-NB_LIGNES, NB_COLONNES = 9, 5 # Récupére les dimensions de la grille pour indiquer le domaine de déplacement au joueur
+NB_LIGNES, NB_COLONNES = 9, 5 # Récupère les dimensions de la grille pour indiquer le domaine de déplacement au joueur
 joueur = Joueur("Blue Prince", NB_LIGNES, NB_COLONNES)  # Le joueur peut se déplacer sur l'interface du jeux (sur toute la grille)
 
 """
 Ici on va gérer l'aléatoire de la position des collectables dans le manoir
-
 """
 # ici, on va faire un random pour les positions des differents objets collectables dans le manoir
 position_possible = []
 for i in range(NB_LIGNES):
     for j in range(NB_COLONNES):
         position = (i, j) 
-        position_possible.append(position)
+        # Ne pas placer d'objets sur la position de départ et d'arrivée
+        if position != (8, 2) and position != (0, 2):
+            position_possible.append(position)
 
-position_aleatoire = random.sample(position_possible, len(COLLECTABLES_CATALOGUE))
+# On mélange et on prend autant de positions qu'il y a d'objets
+position_aleatoire = random.sample(position_possible, min(len(COLLECTABLES_CATALOGUE), len(position_possible)))
 
 pos_objet = []
-
 for objet, pos in zip(COLLECTABLES_CATALOGUE, position_aleatoire):
     pos_objet.append(PLACEMENT_OBJET(objet, pos))
-
-# nous avons fixé aléatoirement les positions des objets, et maintenant on souhaite appliquer les effets
-# des objets + on veut aussi s'assurer que la collecte de l'objet est bien sauvegardé
-for objet_present in pos_objet:
-    if (objet_present.collecte == False) and (joueur.position == objet_present.position):
-        objet_present.objet.appli_effets(joueur)
-        objet_present.collecte = True
 
 
 ARRIVEE = (0, 2)   # case correspondante à l'antichambre 
@@ -177,6 +203,12 @@ def afficher_grille():
             else:
                 pygame.draw.rect(fenetre, NOIR, (x, y, TAILLE_CASE, TAILLE_CASE))
             pygame.draw.rect(fenetre, GRIS, (x, y, TAILLE_CASE, TAILLE_CASE), 1)
+            
+            # AJOUT: Afficher un petit indicateur si un objet est présent et non collecté
+            for objet_present in pos_objet:
+                if not objet_present.collecte and objet_present.position == (ligne, colonne):
+                    pygame.draw.circle(fenetre, OR, (x + TAILLE_CASE - 10, y + 10), 5)
+            
             # Utilisation de joueur.position
             if [ligne, colonne] == joueur.position: 
                 pygame.draw.rect(fenetre, (0, 191, 255), (x + 10, y + 10, TAILLE_CASE - 20, TAILLE_CASE - 20))
@@ -188,10 +220,18 @@ def afficher_inventaire():
     y_offset = 20
     fenetre.blit(police_titre.render("Inventaire", True, NOIR), (x_offset, y_offset))
     # Utilisation de joueur.inventaire
-        # Utilisation de joueur.inventaire
     for i, (cle, valeur) in enumerate(joueur.inventaire.items()): 
         texte = f"{cle}: {valeur}"
         fenetre.blit(police.render(texte, True, NOIR), (x_offset, y_offset + 30 + i * 25))
+    
+    # AJOUT: Afficher les objets permanents activés
+    y_permanent = y_offset + 30 + len(joueur.inventaire) * 25 + 20
+    fenetre.blit(police_titre.render("Objets permanents:", True, NOIR), (x_offset, y_permanent))
+    y_permanent += 30
+    for nom, possede in joueur.objets_permanents.items():
+        if possede:
+            fenetre.blit(police.render(f"✓ {nom}", True, (0, 150, 0)), (x_offset, y_permanent))
+            y_permanent += 25
 
 
 # Affichage du menu de tirage
@@ -236,18 +276,17 @@ def afficher_fin():
 # fonction d'affichage d'un message défaite + écran  
 def afficher_defaite():
     fenetre.fill((0, 0, 139))  # définition d'un écran bleu
-    #police = pygame.font.SysFont("Arial", 80)  # taille plus grande
-    police = pygame.font.Font("style/Signtelly.ttf", 50)
-    texte = police.render("GAME OVER!", True, (220, 20, 60))
+    police_defaite = pygame.font.SysFont("Arial", 80)
+    texte = police_defaite.render("GAME OVER!", True, (220, 20, 60))
     rect = texte.get_rect(center=(LARGEUR_FENETRE // 2, HAUTEUR_FENETRE // 2))
     fenetre.blit(texte, rect)
     pygame.display.update()
+    
 # fonction d'affichage d'un message victoire
 def afficher_victoire():
     fenetre.fill((0, 0, 139))  # fond bleu clair (SteelBlue)
-    #police = pygame.font.SysFont("Arial", 80)  # taille grande comme pour GAME OVER
-    police = pygame.font.Font("style/Signtelly.ttf", 50)
-    texte = police.render("VICTOIRE !", True, (255, 215, 0)) # couleur dorée
+    police_victoire = pygame.font.SysFont("Arial", 80)
+    texte = police_victoire.render("VICTOIRE !", True, (255, 215, 0)) # couleur dorée
     rect = texte.get_rect(center=(LARGEUR_FENETRE // 2, HAUTEUR_FENETRE // 2))
     fenetre.blit(texte, rect)
     pygame.display.update()
@@ -266,7 +305,7 @@ def chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
     while file:
         x, y = file.popleft()
 
-        # Si on atteint l’arrivée
+        # Si on atteint l'arrivée
         if (x, y) == ARRIVEE:
             return True
 
@@ -279,8 +318,12 @@ def chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
                 salle = grille[nx][ny]
 
                 accessible = True
-                if salle.necessite_cle and joueur.inventaire["Clés"] <= 0:
-                    accessible = False
+                # CORRECTION: Vérifier si on peut ouvrir avec le kit de crochetage
+                if salle.necessite_cle:
+                    if joueur.inventaire["Clés"] <= 0:
+                        # Si c'est une porte niveau 1 et qu'on a le kit, c'est accessible
+                        if not (salle.niveau_verrou == 1 and joueur.objets_permanents["Kit de crochetage"]):
+                            accessible = False
 
                 if accessible and (nx, ny) not in visites:
                     visites.add((nx, ny))
@@ -317,71 +360,49 @@ def principal():
 
                         if joueur.inventaire["Gemmes"] >= cout:
                             if verrou > 0 and joueur.inventaire["Clés"] < verrou:
-                                print(f"Pas assez de clés pour placer {choix['nom']} (niveau {verrou})")
-                            else:
-                                joueur.inventaire["Gemmes"] -= cout
-                                print(f"-{cout} gemme(s) dépensée(s). Gemmes restantes : {joueur.inventaire['Gemmes']}")
-
-                                if verrou > 0:
-                                    joueur.inventaire["Clés"] -= verrou
-                                    print(f"-{verrou} clé(s) utilisée(s). Clés restantes : {joueur.inventaire['Clés']}")
+                                # CORRECTION: Vérifier si on peut ouvrir avec le kit de crochetage
+                                if not (verrou == 1 and joueur.objets_permanents["Kit de crochetage"]):
+                                    print(f"Pas assez de clés pour placer {choix['nom']} (niveau {verrou})")
+                                    continue
                             
+                            joueur.inventaire["Gemmes"] -= cout
+                            print(f"-{cout} gemme(s) dépensée(s). Gemmes restantes : {joueur.inventaire['Gemmes']}")
 
+                            # CORRECTION: Utiliser le kit de crochetage si disponible
+                            if verrou == 1 and joueur.objets_permanents["Kit de crochetage"]:
+                                print("Porte ouverte avec le kit de crochetage!")
+                            elif verrou > 0:
+                                joueur.inventaire["Clés"] -= verrou
+                                print(f"-{verrou} clé(s) utilisée(s). Clés restantes : {joueur.inventaire['Clés']}")
+                        
+                            # Déterminer la classe à utiliser
+                            classe_salle = choix.get("class", Salle) 
+                            
+                            # Création de la nouvelle salle
+                            nouvelle_salle = classe_salle(
+                                nom=choix["nom"],
+                                image=choix["image"],
+                                effet=choix.get("effet"), 
+                                niveau_verrou=choix.get("niveau_verrou", 0),
+                                decouverte=True # La nouvelle salle est découverte dès sa construction
+                            )
+
+                            # CORRECTION: Utiliser la méthode declencher_effet de la classe Salle
+                            nouvelle_salle.declencher_effet(joueur)
+                            
+                            # Gestion spéciale pour gain_nourriture
+                            if nouvelle_salle.effet == "gain_nourriture" and not nouvelle_salle.effet_declenche:
+                                aliments = ["Pomme", "Banane", "Gâteau", "Sandwich", "Repas"]
+                                aliment_choisi = random.choice(aliments)
                                 
+                                # Trouver l'objet correspondant
+                                montants = {"Pomme": 2, "Banane": 3, "Gâteau": 10, "Sandwich": 15, "Repas": 25}
+                                joueur.inventaire["Pas"] += montants.get(aliment_choisi, 2)
+                                nouvelle_salle.effet_declenche = True
+                                print(f"Vous avez trouvé un aliment : {aliment_choisi} ! +{montants.get(aliment_choisi, 2)} pas")
 
-                                # Déterminer la classe à utiliser
-                                classe_salle = choix.get("class", Salle) 
-                                
-                                # Création de la nouvelle salle
-                                nouvelle_salle = classe_salle(
-                                    nom=choix["nom"],
-                                    image=choix["image"],
-                                    effet=choix.get("effet"), 
-                                    niveau_verrou=choix.get("niveau_verrou", 0),
-                                    decouverte=True # La nouvelle salle est découverte dès sa construction
-                                )
-
-                                # Déclenchement de l'effet immédiat
-                                nouvelle_salle.declencher_effet(joueur) 
-                                
-                                grille[ligne][colonne] = nouvelle_salle
-                                selection_piece = False
-
-                                # Effets immédiats
-                                if nouvelle_salle.effet == "gain_steps":
-                                    joueur.inventaire["Pas"] += 2
-                                    nouvelle_salle.effet_declenche = True
-                                    print("Youpi! +2 pas")
-                                elif nouvelle_salle.effet == "gain_key":
-                                    joueur.inventaire["Clés"] += 1
-                                    nouvelle_salle.effet_declenche = True
-                                    print("Youpi!  +1 clé")
-                                elif nouvelle_salle.effet == "gain_die":
-                                    joueur.inventaire["Dés"] += 1
-                                    nouvelle_salle.effet_declenche = True
-                                    print("Youpi! +1 dé")
-                                elif nouvelle_salle.effet == "gain_gem":
-                                    joueur.inventaire["Gemmes"] += 1
-                                    nouvelle_salle.effet_declenche = True
-                                    print("Youpi!  +1 gemme")
-                                
-                                elif nouvelle_salle.effet == "gain_nourriture" and not nouvelle_salle.effet_declenche:
-                                    # Choisir un aliment au hasard
-                                    aliment = random.choice(["Pomme", "Banane", "Gâteau", "Sandwich", "Repas"])
-                                    # Trouver l'objet correspondant dans le catalogue
-                                    for obj in COLLECTABLES_CATALOGUE:
-                                        if obj.nom == aliment:
-                                            obj.appli_effets(joueur)  # ajoute l'aliment à l'inventaire
-                                            # Afficher le nombre de pas gagnés
-                                            if obj.resource_cle == "Pas":
-                                                print(f"Nombre de pas gagnés : {obj.montant}")
-                                            break
-                                    nouvelle_salle.effet_declenche = True
-                                    print(f"Vous avez trouvé un aliment : {aliment} !")
-
-
-                                grille[ligne][colonne] = nouvelle_salle
-                                selection_piece = False
+                            grille[ligne][colonne] = nouvelle_salle
+                            selection_piece = False
                         else:
                             print("Pas assez de gemmes pour cette pièce !")
 
@@ -391,7 +412,8 @@ def principal():
                     if bouton_rect.collidepoint(souris_x, souris_y):
                         if joueur.inventaire["Dés"] > 0:
                             joueur.inventaire["Dés"] -= 1
-                            choix_pieces = random.sample(catalogue_pieces, 3)
+                            # CORRECTION: Utiliser la fonction avec rareté
+                            choix_pieces = tirer_pieces_avec_rarete(catalogue_pieces, 3)
                             print("Tirage relancé avec un dé")
                         else:
                             print("Pas de dés disponibles pour relancer")
@@ -411,8 +433,13 @@ def principal():
 
                 if [nouvelle_ligne, nouvelle_colonne] != [ligne, colonne]:
                     salle_cible = grille[nouvelle_ligne][nouvelle_colonne]
+                    
+                    # CORRECTION: Gestion améliorée avec kit de crochetage
                     if salle_cible.niveau_verrou > 0 and not salle_cible.decouverte:
-                        if joueur.inventaire["Clés"] >= salle_cible.niveau_verrou:
+                        # Si c'est niveau 1 et qu'on a le kit, pas besoin de clé
+                        if salle_cible.niveau_verrou == 1 and joueur.objets_permanents["Kit de crochetage"]:
+                            print("Porte niveau 1 ouverte avec le kit de crochetage!")
+                        elif joueur.inventaire["Clés"] >= salle_cible.niveau_verrou:
                             joueur.inventaire["Clés"] -= salle_cible.niveau_verrou
                             print(f"Porte niveau {salle_cible.niveau_verrou} ouverte avec une clé")
                         else:
@@ -422,58 +449,49 @@ def principal():
                     joueur.position[0], joueur.position[1] = nouvelle_ligne, nouvelle_colonne
                     joueur.inventaire["Pas"] -= 1
 
+                    # AJOUT: Vérifier si un objet est présent à cette position
+                    for objet_present in pos_objet:
+                        if not objet_present.collecte and tuple(joueur.position) == objet_present.position:
+                            objet_present.objet.appli_effets(joueur)
+                            objet_present.collecte = True
+
                     if not salle_cible.decouverte:
-                        choix_pieces = random.sample(catalogue_pieces, 3)
+                        # CORRECTION: Utiliser la fonction avec rareté
+                        choix_pieces = tirer_pieces_avec_rarete(catalogue_pieces, 3)
                         selection_piece = True
                         index_selection = 0
-                    elif salle_cible.effet == "gain_steps" and not salle_cible.effet_declenche:
-                        joueur.inventaire["Pas"] += 2
-                        salle_cible.effet_declenche = True
-                        print("Youpi! : +2 pas")
-                    elif salle_cible.effet == "gain_key" and not salle_cible.effet_declenche:
-                        joueur.inventaire["Clés"] += 1
-                        salle_cible.effet_declenche = True
-                        print("Youpi! +1 clé")
-                    elif salle_cible.effet == "gain_die" and not salle_cible.effet_declenche:
-                        joueur.inventaire["Dés"] += 1
-                        salle_cible.effet_declenche = True
-                        print("Youpi! +1 dé")
+                    else:
+                        # CORRECTION: Utiliser la méthode declencher_effet
+                        salle_cible.declencher_effet(joueur)
 
         afficher_grille()
         afficher_inventaire()
         afficher_choix_pieces()
 
-        salle_actuelle = grille[joueur.position[0]][joueur.position[1]]
+        #salle_actuelle = grille[joueur.position[0]][joueur.position[1]]
 
-
-        if joueur.inventaire["Pas"] <= 0 :
+        # CONDITION DE DÉFAITE 1: Plus de pas
+        if joueur.inventaire["Pas"] <= 0:
              print("Défaite 😢😢 Plus de pas disponibles")
-             son_defaite.play()   # joue le son de défaite
-             afficher_defaite()   # écran bleu avec texte Défaite
+             son_defaite.play()
+             afficher_defaite()
              pygame.time.wait(3000)
              pygame.quit()
              sys.exit()
-        salle_actuelle = grille[joueur.position[0]][joueur.position[1]]
 
-
-        if salle_actuelle.necessite_cle and joueur.inventaire["Clés"] <= 0:
-            print("Défaite ! Vous n'avez plus de clés pour entrer dans cette salle")
+        # CONDITION DE DÉFAITE 2: Bloqué (impossible d'atteindre l'arrivée)
+        if not chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
+            print("Défaite ! Vous êtes bloqué, impossible d'atteindre l'Antichambre")
             son_defaite.play()
             afficher_defaite()
             pygame.time.wait(3000)
             pygame.quit()
-            sys.exit() 
-        
-       
-                    
-                
-        
+            sys.exit()
 
-        
-
-        if joueur.position == [0, 2]:  # condition de victoire
+        # CONDITION DE VICTOIRE
+        if joueur.position == [0, 2]:
             print("Victoire ! Vous avez atteint l'Antichambre !")
-            son_victoire.play() # joue le son de la victoire
+            son_victoire.play()
             afficher_victoire()
             pygame.time.wait(3000)
             pygame.quit()
