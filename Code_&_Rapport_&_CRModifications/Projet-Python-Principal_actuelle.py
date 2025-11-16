@@ -11,7 +11,7 @@ pygame.mixer.init()
 
 
 ''' 
-                INTERFACE GRAPHIQUE_ Résumé de l'
+                INTERFACE GRAPHIQUE_ Résumé de l'implémentation
           
 Ce fichier Projet-Python-Principale contient:
 initialisation: elle contient la creation de la fenetre avec pygame.display, titre'Blue Prince'
