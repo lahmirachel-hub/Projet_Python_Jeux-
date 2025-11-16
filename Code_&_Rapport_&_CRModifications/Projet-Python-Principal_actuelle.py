@@ -26,7 +26,6 @@ principal(): la boucle principale gere les mouvements ZQSD, les tirage, inventai
 
   '''
 
-
 # Dimensions de la grille du jeux 
 TAILLE_CASE = 60
 NB_LIGNES, NB_COLONNES = 9, 5
