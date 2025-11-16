@@ -61,7 +61,8 @@ police_titre = pygame.font.SysFont(None, 32)
 # Initialisations des sons de start, game over et victory
 # Le dossier Sounds est dans le document Projet_Python_Jeux- : attention
 # il faut bien se trouver dans ce dossier avant de run le code, sinon python va afficher qu'il ne trouve 
-# pas les sons dans le chemin donné.  
+# pas les sons dans le chemin donné. 
+ 
 son_depart = pygame.mixer.Sound("sounds/start.wav")
 son_victoire = pygame.mixer.Sound("sounds/victory.wav")
 son_defaite = pygame.mixer.Sound("sounds/defeat.wav")
