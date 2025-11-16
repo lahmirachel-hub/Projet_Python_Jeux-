@@ -135,15 +135,34 @@ class ObjetCollectable:
 # tirage alétoire ces objets dans le manoir (dans les différentes pièces)
 COLLECTABLES_CATALOGUE = [
     # Objet de type Nourriture. Effet = incrémente le nombre de pas : 
-    ObjetCollectable(nom="Pomme", resource_cle="Pas", montant= 2,type_objet="Nourriture"),
-    ObjetCollectable(nom="Banane",resource_cle="Pas", montant=3, type_objet="Nourriture" ),
-    ObjetCollectable(nom="Gâteau", resource_cle="Pas", montant=10,type_objet="Nourriture"),
-    ObjetCollectable(nom="Sandwich", resource_cle="Pas", montant=15, type_objet="Nourriture"),
-    ObjetCollectable(nom="Repas", resource_cle="Pas", montant= 25,type_objet="Nourriture"),
-    ObjetCollectable(nom="Kit de crochetage", resource_cle="KitCrochetage", montant=1, type_objet="Permanent"),
-    ObjetCollectable(nom="Détecteur de métaux", resource_cle="DetecteurMetaux", montant=1, type_objet="Permanent"),
-    ObjetCollectable(nom="Patte de lapin", resource_cle="PatteDeLapin", montant=1, type_objet="Permanent")
+    [ObjetCollectable(nom="Pomme", resource_cle="Pas", montant= 2,type_objet="Nourriture") for _ in range(2, 7)],
+    [ObjetCollectable(nom="Banane",resource_cle="Pas", montant=3, type_objet="Nourriture" ) for _ in range(2, 5)],
+    [ObjetCollectable(nom="Gâteau", resource_cle="Pas", montant=10,type_objet="Nourriture") for _ in range(1, 4)],
+    [ObjetCollectable(nom="Sandwich", resource_cle="Pas", montant=15, type_objet="Nourriture") for _ in range(3)],
+    [ObjetCollectable(nom="Repas", resource_cle="Pas", montant= 25,type_objet="Nourriture") for _ in range(2)],
+    [ObjetCollectable(nom="Kit de crochetage", resource_cle="KitCrochetage", montant=1, type_objet="Permanent")],
+    [ObjetCollectable(nom="Détecteur de métaux", resource_cle="DetecteurMetaux", montant=1, type_objet="Permanent")],
+    [ObjetCollectable(nom="Patte de lapin", resource_cle="PatteDeLapin", montant=1, type_objet="Permanent")]
 ]
+
+    
+class PLACEMENT_OBJET:
+    """
+    Cette classe définit la position et l'état de collecte d'un objet en particulier
+    
+    """
+    def __init__(self, objet, position):
+        self.objet = objet
+        self.position = position
+        self.collecte = False
+
+
+
+
+
+
+
+
 
 
 

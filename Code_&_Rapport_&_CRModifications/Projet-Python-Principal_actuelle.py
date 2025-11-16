@@ -4,7 +4,7 @@ import random
 from classes import Joueur
 from classes import Salle 
 from collections import deque
-from classes import COLLECTABLES_CATALOGUE, ObjetCollectable
+from classes import COLLECTABLES_CATALOGUE, ObjetCollectable, PLACEMENT_OBJET
 import os
 pygame.init()
 pygame.mixer.init()
@@ -124,6 +124,32 @@ grille[0][2] = Salle(nom="Antichambre", image=images_pieces["Antichambre"], deco
 # Position intiale du joueur 
 NB_LIGNES, NB_COLONNES = 9, 5 # Récupére les dimensions de la grille pour indiquer le domaine de déplacement au joueur
 joueur = Joueur("Blue Prince", NB_LIGNES, NB_COLONNES)  # Le joueur peut se déplacer sur l'interface du jeux (sur toute la grille)
+
+"""
+Ici on va gérer l'aléatoire de la position des collectables dans le manoir
+
+"""
+# ici, on va faire un random pour les positions des differents objets collectables dans le manoir
+position_possible = []
+for i in range(NB_LIGNES):
+    for j in range(NB_COLONNES):
+        position = (i, j) 
+        position_possible.append(position)
+
+position_aleatoire = random.sample(position_possible, len(COLLECTABLES_CATALOGUE))
+
+pos_objet = []
+
+for objet, pos in zip(COLLECTABLES_CATALOGUE, position_aleatoire):
+    pos_objet.append(PLACEMENT_OBJET(objet, pos))
+
+# nous avons fixé aléatoirement les positions des objets, et maintenant on souhaite appliquer les effets
+# des objets + on veut aussi s'assurer que la collecte de l'objet est bien sauvegardé
+for objet_present in pos_objet:
+    if (objet_present.collecte == False) and (joueur.position == objet_present.position):
+        objet_present.objet.appli_effets(joueur)
+        objet_present.collecte = True
+
 
 ARRIVEE = (0, 2)   # case correspondante à l'antichambre 
 
