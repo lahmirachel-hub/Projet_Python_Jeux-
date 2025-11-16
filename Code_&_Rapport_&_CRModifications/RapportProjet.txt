@@ -1,0 +1,83 @@
+Compte Rendu Projet
+
+Introduction
+Lors de la réalisation du projet, nous avons adopté la méthode POO (Programmation Orientée Objet). 
+Pour rappel, la Programmation Orientée Objet (POO) consiste à organiser le code non pas autour de fonctions,
+mais autour d'entités appelées objets, qui sont des instances de classes. Ce modèle vise à rendre le code plus structuré. 
+Nous avons appliqué deux principes fondamentaux de la POO : l'Encapsulation et l'Abstraction. 
+L'Encapsulation permet de regrouper les données (attributs) et les comportements (méthodes) au sein d'une même classe (à l’aide d’un constructeur pour l’initialisation du joueur par exemple).
+À titre d’exemple, la classe Joueur gère en interne son propre inventaire et ses mécanismes de perdre_pas(). Le reste du programme n'a donc plus besoin de connaître les détails de cette gestion, il lui suffit d'appeler la méthode. 
+L’abstraction nous a permis de nous concentrer uniquement sur ce qui est important pour chaque élément du jeu (le Joueur, la Salle, les Objets) dans le code principal, sans nous préoccuper des détails complexes de leur fonctionnement interne. 
+Nous avons tout d’abord créé un fichier ne contenant que les définitions des classes (les "moules" des objets du jeu). 
+À part, nous avons élaboré notre code contenant le fonctionnement principal du jeu. Par ailleurs, nous avions initialement inséré toutes les fonctions et catalogues du jeu dans le code principal.
+Comme cela le rendait long et complexe, nous avons finalement créer deux fichiers à part, fonctions.py et catalogue.py.   
+Dans le dossier principal nous avons ensuite fait appel au fichier classe, fonctions et catalogue (en utilisant import). 
+Ce choix nous est apparu comme le plus efficace car il évite un fichier principal trop long, séparant la définition des objets, les différentes fonctions et catalogue et leur utilisation.  
+De plus, une telle méthode de travail, nous a facilitées la répartition des tâches. 
+Concernant le dépôt GitHub, nous avons rencontré une difficulté initiale avec l'espace de travail créé. 
+Des problèmes d’autorisation ou de configuration (malgré la création en mode "public") ont empêché certains membres du groupe déposer leurs documents à tour de rôle. Ce problème technique a été la cause du retard du premier dépôt.
+Nous avons depuis résolu cela par la création d'un nouveau repository fonctionnel pour garantir que toutes les contributions soient bien enregistrées, conformément aux exigences du projet.
+
+
+I.	Création d’un fichier classe 
+Le fichier classes.py modélise les différentes entités dynamiques du jeu.  Nous avons ainsi défini quatre classes principales dans ce fichier. 
+
+En premier lieu, la classe Joueur est la création du personnage principal du jeu. Elle encapsule l'état complet du personnage en temps réel (position, inventaire, nom). 
+Elle contient aussi des méthodes (sous forme de fonctions au sein de la classe ; par exemple : deplacer et perdre_pas). 
+Celles-ci, constituent l'interface permettant au reste du programme d'interagir avec l’état du joueur (son inventaire). 
+
+Ensuite, nous avons conçu la classe Salle qui modélise chaque case du manoir. 
+La classe Salle modélise quant à elle les cases (définies par la grille représentant le manoir) du plateau, gérant leur état (ouverte, verrouillée) et leur comportement 
+(déclenchement d'effet pour les pièces contenant par exemple un coffre). 
+En effet, chaque instance (objet) de cette classe est responsable de son propre état, notamment si elle est decouverte, son niveau de verrou potentiel, et si son effet_declenche a déjà eu lieu ou pas.
+Nous y avons intégré un attribut effet_declenche au niveau de l'objet lui-même pour permettre à chaque salle de gérer sa particularité (par exemple dans la cuisine, 
+on peut gagner des aliments et ses aliments font gagner des pas au joueur). 
+Procéder ainsi, nous a permis de nous assurer que les bonus du jeu ne sont collectés qu'une seule fois selon les pièces. 
+La méthode declencher_effet illustre en fait l’interaction entre la salle et le joueur. 
+Elle agit en fait directement sur l'état du joueur (son inventaire).
+
+Enfin, la classe ObjetCollectable sert à représenter tous les objets que le joueur peut trouver dans le manoir. 
+Son constructeur reçoit quatre informations essentielles : le nom de l’objet (comme une pomme ou le kit de crochetage), la ressource de l’inventaire qu’il modifie (par exemple les pas ou les clés), 
+le montant à ajouter à la ressource (pour la pomme, il gagne +2 pas par exemple), ainsi que le type de l’objet (s’il est consommable ou permanent). 
+Comme pour la classe salle la méthode appli_effets() applique directement l’effet de l’objet au joueur. 
+Elle met à jour les valeurs de son inventaire et, lorsqu’il s’agit d’un objet permanent, elle active aussi le drapeau (appelé le « flag » dans le code) associé dans joueur.objets_permanents. 
+Cela permet au jeu de gérer naturellement des capacités spéciales, comme l’ouverture de portes ou l’amélioration des chances de trouver des ressources.
+
+Enfin, une autre structure, PLACEMENT_OBJET, est utilisée pour associer les divers objets collectables à une position aléatoire 
+sur la grille du jeu au début de la partie. 
+On pourra ainsi plus facilement indiquer dans l’inventaire du joueur s’il a déjà été ramassé ou non. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+II.	Architecture du ‘pipeline’ principal du jeu
+ Afin de concevoir le fonctionnement principal du jeu avec toutes ses fonctionnalités, nous avons fondé notre code sur la bibliothèque Pygame, utilisée comme la fondation technique de l’interface graphique et de la gestion des évènements du jeu. Au-delà de son rôle moteur de jeu, Pygame a été essentiel pour la phase d’initialisation du jeu. Ce module nous a notamment permis de créer la fenêtre du jeu, de définir le thème du jeu (couleurs, polices pour affichage de l’inventaire et des messages). De plus, nous avons pu préparer l’espace où sera dessiné le manoir, les salles et le joueur. Pygame nous permet de créer une grille avec des lignes colonnes avec des tailles que nous avons définies. Cette première étape consiste donc à préparer le canevas de l’application avant d’entrer dans la boucle principale qui va régir la logique du jeu. 
+À ce stade, la programmation programmée objet avec l’appel des classes prend le relais.  
+
+III.	Implémentation et Test 
+
+
+
+
+
+
+
+
+
+
