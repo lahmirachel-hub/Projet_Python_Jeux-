@@ -9,11 +9,9 @@ L'Encapsulation permet de regrouper les données (attributs) et les comportement
 À titre d’exemple, la classe Joueur gère en interne son propre inventaire et ses mécanismes de perdre_pas(). Le reste du programme n'a donc plus besoin de connaître les détails de cette gestion, il lui suffit d'appeler la méthode. 
 L’abstraction nous a permis de nous concentrer uniquement sur ce qui est important pour chaque élément du jeu (le Joueur, la Salle, les Objets) dans le code principal, sans nous préoccuper des détails complexes de leur fonctionnement interne. 
 Nous avons tout d’abord créé un fichier ne contenant que les définitions des classes (les "moules" des objets du jeu). 
-À part, nous avons élaboré notre code contenant le fonctionnement principal du jeu. Par ailleurs, nous avions initialement inséré toutes les fonctions et catalogues du jeu dans le code principal.
-Comme cela le rendait long et complexe, nous avons finalement créer deux fichiers à part, fonctions.py et catalogue.py.   
-Dans le dossier principal nous avons ensuite fait appel au fichier classe, fonctions et catalogue (en utilisant import). 
-Ce choix nous est apparu comme le plus efficace car il évite un fichier principal trop long, séparant la définition des objets, les différentes fonctions et catalogue et leur utilisation.  
-De plus, une telle méthode de travail, nous a facilitées la répartition des tâches. 
+À part, nous avons élaboré notre code contenant le fonctionnement principal du jeu. Par ailleurs, nous avons inséré toutes les fonctions et catalogues du jeu dans le code principal.
+Dans le dossier principal nous avons ensuite fait appel au fichier classe (en utilisant import). 
+Ce choix nous est apparu comme le plus efficace car il évite un fichier principal trop long, séparant la définition des objets (les classes), nous n'avons pas séparé les fonctions car leurs implémentations et l'implémentation du main nécessitent des lignes de code intégrées au code principale.  
 Concernant le dépôt GitHub, nous avons rencontré une difficulté initiale avec l'espace de travail créé. 
 Des problèmes d’autorisation ou de configuration (malgré la création en mode "public") ont empêché certains membres du groupe déposer leurs documents à tour de rôle. Ce problème technique a été la cause du retard du premier dépôt.
 Nous avons depuis résolu cela par la création d'un nouveau repository fonctionnel pour garantir que toutes les contributions soient bien enregistrées, conformément aux exigences du projet.
@@ -52,23 +50,138 @@ On pourra ainsi plus facilement indiquer dans l’inventaire du joueur s’il a 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 II.	Architecture du ‘pipeline’ principal du jeu
  Afin de concevoir le fonctionnement principal du jeu avec toutes ses fonctionnalités, nous avons fondé notre code sur la bibliothèque Pygame, utilisée comme la fondation technique de l’interface graphique et de la gestion des évènements du jeu. Au-delà de son rôle moteur de jeu, Pygame a été essentiel pour la phase d’initialisation du jeu. Ce module nous a notamment permis de créer la fenêtre du jeu, de définir le thème du jeu (couleurs, polices pour affichage de l’inventaire et des messages). De plus, nous avons pu préparer l’espace où sera dessiné le manoir, les salles et le joueur. Pygame nous permet de créer une grille avec des lignes colonnes avec des tailles que nous avons définies. Cette première étape consiste donc à préparer le canevas de l’application avant d’entrer dans la boucle principale qui va régir la logique du jeu. 
 À ce stade, la programmation programmée objet avec l’appel des classes prend le relais.  
+
+Ce fichier regroupe donc les fonctions nécessaire a la pipline du jeu, avec notamment la boucle principale finale :
+
+1. Initialisation du jeu
+
+1.1 Imports et initialisation Pygame
+
+Explication :
+- Import des bibliothèques nécessaires (pygame pour l'interface, random pour l'aléatoire)
+- Import des classes personnalisées depuis `classes.py`
+- `pygame.init()` : Initialise tous les modules Pygame
+- `pygame.mixer.init()` : Initialise le module audio pour jouer les sons
+
+1.2 Configuration de la fenêtre
+
+1.3 Création de la fenêtre :
+
+
+1.4 Définition des couleurs :
+
+
+
+1.5 Variables globales du jeu :
+
+
+1.6 Polices de texte : 
+
+
+
+1.7 Chargement des sons : 
+
+
+2. Chargement des images 
+
+2.1 Dictionnaire des chemins d'images
+
+
+2.2 Chargement des images en mémoire
+
+
+3. Fonctions utile
+
+3.1 `niveau_verrou(ligne_actuelle=None)` 
+
+Explication:
+- But : Génère le niveau de verrouillage d'une porte (0, 1 ou 2)
+- Niveau 0 : Porte déverrouillée (pas de clé nécessaire)
+- Niveau 1 : Porte verrouillée (1 clé OU kit de crochetage)
+- Niveau 2 : Porte verrouillée à double tour (1 clé obligatoire)
+- Logique progressive :
+  - Au départ : que des portes niveau 0 (facile)
+  - Au milieu : mélange de niveaux
+  - À l'arrivée : que des portes niveau 2
+- random.random() : génère un nombre aléatoire entre 0.0 et 1.0
+
+3.2 Catalogue de pièces :
+
+
+3.3 `tirer_pieces_avec_rarete(catalogue, nombre=3)`
+Explication :
+- But : Tirer 3 pièces au hasard en respectant leur rareté
+- Calcul des poids :
+  - Une pièce de rareté 0 a un poids de 1 (commun)
+  - Une pièce de rareté 1 a un poids de 0.33 (3 fois moins probable)
+  - Une pièce de rareté 2 a un poids de 0.11 (9 fois moins probable)
+- random.choices() : tire avec pondération (pas équiprobable)
+- Garantie de pièce gratuite : Pour éviter d'être bloqué sans gemmes, on force au moins une pièce à coût 0
+
+
+
+4. Initialisation du jeu
+
+4.1 Création de la grille :
+
+
+4.2 Placement des salles spéciales :
+
+
+4.3 Création du joueur :
+
+
+4.4 Placement aléatoire des objets collectables :
+Explication :
+- Crée une liste de toutes les positions possibles (sauf départ/arrivée)
+- Double boucle : parcourt toutes les cases de la grille
+- `random.sample()` : tire des positions sans remise (pas de doublon)
+- `min()` : prend le minimum entre nb d'objets et nb de positions disponibles
+- `zip()` : associe chaque objet à une position
+- Crée des objets `PLACEMENT_OBJET` qui lie objet + position + état de collecte
+- `pos_objet` contient tous les objets placés dans le manoir
+
+
+4.5 Définition de l'arrivée :
+
+
+5. Fonctions d'affichage
+
+5.1 `afficher_grille()` :
+
+
+5.2 `afficher_inventaire()` :
+
+
+5.3 `afficher_choix_pieces()` :
+
+
+5.4 `afficher_defaite()` et `afficher_victoire()` :
+
+
+5.5 `chemin_vers_arrivee_existe()` :
+
+
+
+6. Fonction principale `principal()`
+
+6.1 Initialisation :
+
+
+6.2 Boucle principale du jeu :
+
+
+6.3 Gestion des événements :
+
+
+6.4 Mode sélection de pièce :
+
+
+6.4.2 Validation du choix (Entrée) :
+
 
 III.	Implémentation et Test 
 

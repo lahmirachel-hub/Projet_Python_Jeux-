@@ -4,7 +4,7 @@ import random
 from classes import Joueur
 from classes import Salle 
 from collections import deque
-from classes import COLLECTABLES_CATALOGUE, ObjetCollectable, PLACEMENT_OBJET
+from classes import COLLECTABLES_CATALOGUE, PLACEMENT_OBJET
 import os
 pygame.init()
 pygame.mixer.init()

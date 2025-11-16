@@ -3,8 +3,6 @@
 # la pipeline global du jeu. (On va importer les classes créées d'ici, dans le code principal).
 # On procède ainsi pour que le code principal ne soit pas trop long et complexe. 
 
-import random
-
 # Création classe joueur = représente le joueur (nom, prénom, nombre pas restants...) et ses actions (nombre de gemmes gagnées, perdues...)
 #  dans le manoir  dans le jeu Blue Prince.
 class Joueur:
