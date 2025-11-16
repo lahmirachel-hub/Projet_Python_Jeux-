@@ -269,7 +269,7 @@ def afficher_inventaire():
             y_permanent += 25
 
 
-# Affichage du menu de tirage
+# Affichage du menu de tirage:
 def afficher_choix_pieces():
     base_y = HAUTEUR_GRILLE + 20
     largeur_carte = 160
