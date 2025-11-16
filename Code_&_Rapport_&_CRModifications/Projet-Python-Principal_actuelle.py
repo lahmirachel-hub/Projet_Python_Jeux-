@@ -69,7 +69,6 @@ son_victoire = pygame.mixer.Sound("sounds/victory.wav")
 son_defaite = pygame.mixer.Sound("sounds/defeat.wav")
 
 
-
 # Associer aux chambres les différentes images :
 # Chemins relatifs vers les images (basé sur les fichiers que tu as)
 # Le dossier image est dans le document Projet_Python_Jeux- : attention
