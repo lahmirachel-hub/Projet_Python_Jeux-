@@ -59,7 +59,6 @@ police = pygame.font.SysFont(None, 24)
 police_titre = pygame.font.SysFont(None, 32)
 
 # Initialisations des sons de start, game over et victory
-
 # Le dossier Sounds est dans le document Projet_Python_Jeux- : attention
 # il faut bien se trouver dans ce dossier avant de run le code, sinon python va afficher qu'il ne trouve 
 # pas les sons dans le chemin donné.  
@@ -70,7 +69,6 @@ son_defaite = pygame.mixer.Sound("sounds/defeat.wav")
 
 
 # Associer aux chambres les différentes images :
-
 # Chemins relatifs vers les images (basé sur les fichiers que tu as)
 # Le dossier image est dans le document Projet_Python_Jeux- : attention
 # il faut bien se trouver dans ce dossier avant de run le code, sinon python va afficher qu'il ne trouve 
@@ -507,7 +505,7 @@ def principal():
 
         #salle_actuelle = grille[joueur.position[0]][joueur.position[1]]
 
-        # CONDITION DE DÉFAITE 1: Plus de pas
+        # Condition de défaite 1: Plus de pas
         if joueur.inventaire["Pas"] <= 0:
              print("Défaite 😢😢 Plus de pas disponibles")
              son_defaite.play()
@@ -516,7 +514,7 @@ def principal():
              pygame.quit()
              sys.exit()
 
-        # CONDITION DE DÉFAITE 2: Bloqué (impossible d'atteindre l'arrivée)
+        # Condition de défaire 2: Bloqué (impossible d'atteindre l'arrivée)
         if not chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
             print("Défaite ! Vous êtes bloqué, impossible d'atteindre l'antichambre")
             son_defaite.play()
@@ -525,7 +523,7 @@ def principal():
             pygame.quit()
             sys.exit()
 
-        # CONDITION DE VICTOIRE
+        # Condition de victoire
         if joueur.position == [0, 2]:
             print("Victoire ! Vous avez atteint l'Antichambre !")
             son_victoire.play()
