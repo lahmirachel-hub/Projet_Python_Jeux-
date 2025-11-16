@@ -94,10 +94,45 @@ chemins_images = {
 # Chargement des images
 images_pieces = {nom: pygame.image.load(chemin).convert_alpha() for nom, chemin in chemins_images.items()}
 
-def niveau_verrou():
-    """Génère un niveau de verrou aléatoire (0, 1 ou 2)"""
-    numero_verrou = random.randint(0, 2)
-    return numero_verrou
+def niveau_verrou(ligne_actuelle=None):
+    """
+    Génère un niveau de verrou aléatoire (0, 1 ou 2) selon la position dans le manoir.
+    Plus on monte vers l'antichambre (ligne 0), plus les portes sont verrouillées.
+    Ligne 8 (départ) : que des portes niveau 0
+    Ligne 0 (arrivée) : que des portes niveau 2
+    """
+    if ligne_actuelle is None:
+        return random.randint(0, 2)
+    
+    # Première rangée (départ) : que des portes déverrouillées
+    if ligne_actuelle >= 7:
+        return 0
+    # Dernière rangée (arrivée) : que des portes niveau 2
+    elif ligne_actuelle <= 1:
+        return 2
+    # Milieu : mélange progressif
+    else:
+        # Plus on monte, plus de chances d'avoir des portes verrouillées
+        rand = random.random()
+        if ligne_actuelle >= 5:
+            # Rangées 5-6 : 70% niveau 0, 30% niveau 1
+            return 0 if rand < 0.7 else 1
+        elif ligne_actuelle >= 3:
+            # Rangées 3-4 : 40% niveau 0, 40% niveau 1, 20% niveau 2
+            if rand < 0.4:
+                return 0
+            elif rand < 0.8:
+                return 1
+            else:
+                return 2
+        else:
+            # Rangées 2 : 20% niveau 0, 40% niveau 1, 40% niveau 2
+            if rand < 0.2:
+                return 0
+            elif rand < 0.6:
+                return 1
+            else:
+                return 2
 
 # Catalogue complet des pièces (uniquement celles dont l'image existe)
 # AJOUT: attribut "rarete" pour chaque pièce (0 = commun, 1 = peu commun, 2 = rare, 3 = très rare)
@@ -176,6 +211,8 @@ pos_objet = []
 for objet, pos in zip(COLLECTABLES_CATALOGUE, position_aleatoire):
     pos_objet.append(PLACEMENT_OBJET(objet, pos))
 
+# CORRECTION: On ne collecte PAS les objets ici, on le fait dans la boucle principale
+# Supprimé le code qui collectait les objets avant même de commencer le jeu
 
 ARRIVEE = (0, 2)   # case correspondante à l'antichambre 
 
@@ -481,7 +518,7 @@ def principal():
 
         # CONDITION DE DÉFAITE 2: Bloqué (impossible d'atteindre l'arrivée)
         if not chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
-            print("Défaite ! Vous êtes bloqué, impossible d'atteindre l'Antichambre")
+            print("Défaite ! Vous êtes bloqué, impossible d'atteindre l'antichambre")
             son_defaite.play()
             afficher_defaite()
             pygame.time.wait(3000)
@@ -501,6 +538,5 @@ def principal():
         horloge.tick(60)
 
 principal()
-
 
 

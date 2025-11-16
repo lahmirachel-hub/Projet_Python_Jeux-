@@ -24,8 +24,8 @@ class Joueur:
         self.inventaire = {
             "Pas": 70,      
             "Gemmes": 2,     
-            "Clés": 2,       
-            "Dés": 2, 
+            "Clés": 0,       # Initialement à 0 selon l'énoncé
+            "Dés": 0,        # Initialement à 0 selon l'énoncé
             "KitCrochetage": 0,
             "DetecteurMetaux": 0,
             "PatteDeLapin": 0      
@@ -189,11 +189,6 @@ class PLACEMENT_OBJET:
         self.objet = objet
         self.position = position
         self.collecte = False
-
-
-
-
-
-
-
-
+        
+        
+        
