@@ -51,8 +51,20 @@ On pourra ainsi plus facilement indiquer dans l’inventaire du joueur s’il a 
 
 
 II.	Architecture du ‘pipeline’ principal du jeu
- Afin de concevoir le fonctionnement principal du jeu avec toutes ses fonctionnalités, nous avons fondé notre code sur la bibliothèque Pygame, utilisée comme la fondation technique de l’interface graphique et de la gestion des évènements du jeu. Au-delà de son rôle moteur de jeu, Pygame a été essentiel pour la phase d’initialisation du jeu. Ce module nous a notamment permis de créer la fenêtre du jeu, de définir le thème du jeu (couleurs, polices pour affichage de l’inventaire et des messages). De plus, nous avons pu préparer l’espace où sera dessiné le manoir, les salles et le joueur. Pygame nous permet de créer une grille avec des lignes colonnes avec des tailles que nous avons définies. Cette première étape consiste donc à préparer le canevas de l’application avant d’entrer dans la boucle principale qui va régir la logique du jeu. 
-À ce stade, la programmation programmée objet avec l’appel des classes prend le relais.  
+ Afin de concevoir le fonctionnement principal du jeu avec toutes ses fonctionnalités, nous avons fondé notre code sur la bibliothèque Pygame, utilisée comme la fondation technique de l’interface graphique et de la gestion des évènements du jeu. Au-delà de son rôle moteur de jeu, Pygame a été essentiel pour la phase d’initialisation du jeu. Ce module nous a notamment permis de créer la fenêtre du jeu, de définir le thème du jeu (couleurs, polices pour affichage de l’inventaire et des messages). De plus, nous avons pu préparer l’espace où sera dessiné le manoir, les salles et le joueur. Pygame nous permet de créer une grille avec des lignes colonnes avec des tailles que nous avons définies. 
+Cette première étape consiste donc à préparer le canevas de l’application avant d’entrer dans la boucle principale qui va régir la logique du jeu. 
+À ce stade, la programmation orientée objet prend le relais grâce à l’appel des classes définies dans les fichiers du projet. 
+Le fichier Projet-Python-Principale organise les étapes essentielles suivantes :
+
+•Initialisation du jeu : cette étape est la base visuelle et technique nécessaire avant toute interaction, commençant par la création de la fenêtre avec pygame.display, titré ‘Blue Prince’ et la définition de la taille de la grille pour préparer l’espace de jeu. 
+•Chargement des images des pièces : nous avons mis en place un dictionnaire Chemin_images qui regroupant les ressources graphiques, puis chargement des visuels pour une gestion simplifiée et structurée des ressources.
+•Catalogue des pièces : afin de gérer les interactions du joueur et d’assurer la cohérence des règles, nous avons implémenté le dictionnaire catalogue de pièces afin de centraliser toutes les informations des salles et leurs caractéristiques (coût, effet, état de verrouillage).
+•Fonctions principales d’affichage et de gestion : ce fichier est composé d’un ensemble de fonctions telles que : afficher_inventaire,afficher_choix_pieces, afficher_defaite et afficher_victoire, elles assurent à la fois la visualisation de l’inventaire, la présentation des choix possibles et la gestion des écrans pour signaler la fin de la partie (défaite ou victoire).
+•Boucle principale du jeu : la fonction principal gère l’ensemble des mécaniques déplacements du joueur via les touches ZQSD, tirage des pièces, mise à jour de l’inventaire et les conditions de victoire ou de défaite. 
+Cette boucle constitue le cœur du pipeline. Elle relie les classes (Joueur, Salle, Objets) aux fonctions d’affichage et illustre la continuité méthodologique. 
+  
+
+
 
 Ce fichier regroupe donc les fonctions nécessaire a la pipline du jeu, avec notamment la boucle principale finale :
 
