@@ -9,6 +9,20 @@ import os
 pygame.init()
 pygame.mixer.init()
 
+''' 
+          INTERFACE GRAPHIQUE_ Résumé de l'implémentation
+Ce fichier Projet-Python-Principale contient:
+initialisation: elle contient la creation de la fenetre avec pygame.display, titre'Blue Prince'
+et definition de la taille de la grille.
+Chargement des images de pièces: en utilisant un dictionnaire chemins_images et pygame pour load
+Catalogue de pièces: permet de decrire les pièces (cout , effect et état de vérouillage)
+Fonctions: 
+afficher_inventaire(): qui affiche les ressources de gamer (nombre de pas, clés, gemmes...)
+afficher_choix_pièces: affiche les 3 pièces tirés aléatoirement (si on dispose d'un dé, possibilité de relancer le tirage)
+afficher_defaite et afficher_victoire: écran bleu + message+ son
+principal(): la boucle principale gere les mouvements ZQSD, les tirage, inventaire, contions de victory ou game over
+
+  '''
 
 
 # Dimensions de la grille du jeux 
@@ -22,7 +36,7 @@ HAUTEUR_MENU = 200
 LARGEUR_FENETRE = LARGEUR_GRILLE + 300
 HAUTEUR_FENETRE = HAUTEUR_GRILLE + HAUTEUR_MENU
 
-# Géneration de la fenêtre AVANT de charger les images
+# Generer une fenetre (avant de charger les images)
 fenetre = pygame.display.set_mode((LARGEUR_FENETRE, HAUTEUR_FENETRE))
 pygame.display.set_caption("Blue Prince")
 
@@ -55,7 +69,7 @@ son_defaite = pygame.mixer.Sound("sounds/defeat.wav")
 
 
 
-# Associer au chambre les différentes images :
+# Associer aux chambres les différentes images :
 
 # Chemins relatifs vers les images (basé sur les fichiers que tu as)
 # Le dossier image est dans le document Projet_Python_Jeux- : attention
@@ -230,7 +244,7 @@ def chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
         if (x, y) == ARRIVEE:
             return True
 
-        # Déplacements possibles (haut, bas, gauche, droite)
+        # Déplacements haut, bas, gauche, droite
         for dx, dy in [(1,0),(-1,0),(0,1),(0,-1)]:
             nx, ny = x + dx, y + dy
 
@@ -433,7 +447,7 @@ def principal():
 
         if joueur.position == [0, 2]:  # condition de victoire
             print("Victoire ! Vous avez atteint l'Antichambre !")
-            son_victoire.play()
+            son_victoire.play() # joue le son de la victoire
             afficher_victoire()
             pygame.time.wait(3000)
             pygame.quit()
