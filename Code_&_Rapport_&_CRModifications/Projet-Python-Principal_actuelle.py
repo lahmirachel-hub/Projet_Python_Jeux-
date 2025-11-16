@@ -134,7 +134,7 @@ def niveau_verrou(ligne_actuelle=None):
                 return 2
 
 # Catalogue complet des pièces (uniquement celles dont l'image existe)
-# AJOUT: attribut "rarete" pour chaque pièce (0 = commun, 1 = peu commun, 2 = rare, 3 = très rare)
+# on a ajouté l'attribut "rarete" pour chaque pièce (0 = commun, 1 = peu commun, 2 = rare, 3 = très rare)
 catalogue_pieces = [
     {"nom": "Bibliothèque", "image": images_pieces["Bibliothèque"], "description": "Utiliser une gemme pour redessiner", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 1},
     {"nom": "Couloir", "image": images_pieces["Couloir"], "description": "", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou(), "rarete": 0},
@@ -150,7 +150,7 @@ catalogue_pieces = [
 ]
 
 
-# NOUVELLE FONCTION: Tirer des pièces en tenant compte de la rareté
+# Tirer des pièces en tenant compte de la rareté
 def tirer_pieces_avec_rarete(catalogue, nombre=3):
     """
     Tire des pièces aléatoirement en tenant compte de leur rareté.
@@ -191,9 +191,11 @@ grille[0][2] = Salle(nom="Antichambre", image=images_pieces["Antichambre"], deco
 NB_LIGNES, NB_COLONNES = 9, 5 # Récupère les dimensions de la grille pour indiquer le domaine de déplacement au joueur
 joueur = Joueur("Blue Prince", NB_LIGNES, NB_COLONNES)  # Le joueur peut se déplacer sur l'interface du jeux (sur toute la grille)
 
+
 """
 Ici on va gérer l'aléatoire de la position des collectables dans le manoir
 """
+
 # ici, on va faire un random pour les positions des differents objets collectables dans le manoir
 position_possible = []
 for i in range(NB_LIGNES):
@@ -210,8 +212,6 @@ pos_objet = []
 for objet, pos in zip(COLLECTABLES_CATALOGUE, position_aleatoire):
     pos_objet.append(PLACEMENT_OBJET(objet, pos))
 
-# CORRECTION: On ne collecte PAS les objets ici, on le fait dans la boucle principale
-# Supprimé le code qui collectait les objets avant même de commencer le jeu
 
 ARRIVEE = (0, 2)   # case correspondante à l'antichambre 
 
@@ -220,14 +220,17 @@ ARRIVEE = (0, 2)   # case correspondante à l'antichambre
 # On initialise ici le Hall d'entrée (position initiale du joueur).
 grille[joueur.position[0]][joueur.position[1]] = Salle(nom="Hall d'entrée", image=images_pieces["Hall d'entrée"], decouverte=True) 
 
-# Note: Pour que le jeu fonctionne tout de suite, il faut une clé. 
-# Si vous avez mis 0 dans votre classe Joueur, ajoutez temporairement 
-# joueur.inventaire["Clés"] = 1 
-# Ou suivez l'énoncé original (0 clé) et modifiez plus tard.
-
 
 # Affichage de la grille
 def afficher_grille():
+    """
+    Permet d'afficher la grille du jeu
+    
+    Returns
+    -------
+    None.
+
+    """
     for ligne in range(NB_LIGNES):
         for colonne in range(NB_COLONNES):
             salle = grille[ligne][colonne]
@@ -252,6 +255,14 @@ def afficher_grille():
 
 # Affichage de l'inventaire
 def afficher_inventaire():
+    """
+    Permet d'afficher l'inventaire du joueur.
+
+    Returns
+    -------
+    None.
+
+    """
     x_offset = LARGEUR_GRILLE + 20
     y_offset = 20
     fenetre.blit(police_titre.render("Inventaire", True, NOIR), (x_offset, y_offset))
@@ -272,6 +283,14 @@ def afficher_inventaire():
 
 # Affichage du menu de tirage:
 def afficher_choix_pieces():
+    """
+    Affiche le choix des salles du manoir pris de manière aléatoire du catalogue.
+
+    Returns
+    -------
+    None.
+
+    """
     base_y = HAUTEUR_GRILLE + 20
     largeur_carte = 160
     espacement_cartes = 20
@@ -305,12 +324,29 @@ def afficher_choix_pieces():
 
 # Affichage du message de fin
 def afficher_fin():
+    """
+    Affiche le message de fin : Fin de la partie
+
+    Returns
+    -------
+    None.
+
+    """
     texte = police_titre.render("Fin de la partie", True, (200, 0, 0))
     rect = texte.get_rect(center=(LARGEUR_GRILLE // 2, HAUTEUR_GRILLE // 2))
     fenetre.blit(texte, rect)
 
+
 # fonction d'affichage d'un message défaite + écran  condition de défaite
 def afficher_defaite():
+    """
+    Affiche le message de défaite : GAME OVER!
+
+    Returns
+    -------
+    None.
+
+    """
     fenetre.fill((0, 0, 139))  # définition d'un écran bleu
     police_defaite = pygame.font.SysFont("Arial", 80)
     texte = police_defaite.render("GAME OVER!", True, (220, 20, 60))
@@ -318,8 +354,17 @@ def afficher_defaite():
     fenetre.blit(texte, rect)
     pygame.display.update()
     
+    
 # fonction d'affichage d'un message victoire
 def afficher_victoire():
+    """
+    Affiche le message de victoire : VICTOIRE !
+
+    Returns
+    -------
+    None.
+
+    """
     fenetre.fill((0, 0, 139))  # fond bleu clair (SteelBlue)
     police_victoire = pygame.font.SysFont("Arial", 80)
     texte = police_victoire.render("VICTOIRE !", True, (255, 215, 0)) # couleur dorée
@@ -327,8 +372,25 @@ def afficher_victoire():
     fenetre.blit(texte, rect)
     pygame.display.update()
 
+
 # fonction pour défaite si bloqué (plus de possibilité d'évoluer vers l'antichambre)
 def chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
+    """
+    Cette fonction vérifie si le joueur ne peut plus avancer dans le jeu parce que les portes
+    ne peuvent pas etre ouverte sans clé, et il n'a ni clé, ni kit de crochtache (si niveau 1)
+
+    Parameters
+    ----------
+    grille : c'est la grille du manoir
+    joueur : c'est le joueur (classe joueur)
+    ARRIVEE : position d'arrivé
+
+    Returns
+    -------
+    bool
+        bloqué ou pas.
+
+    """
     nb_lignes = len(grille)
     nb_colonnes = len(grille[0])
 
@@ -367,8 +429,20 @@ def chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
 
     return False
 
+
 # Boucle principale
 def principal():
+    """
+    Il s'agit de la boucle principale qui utilise les différentes fonctions plus haut, et les classes importées
+    pour réaliser la pipline du jeu.
+    Elle integre un parcours logique qui verifie les différentes condition de déplacement du joueur, 
+    la gestion de l'inventaire, et les conditions de victoir ou de défaite. 
+
+    Returns
+    -------
+    None.
+
+    """
     global selection_piece, index_selection, choix_pieces
     horloge = pygame.time.Clock()
     son_depart.play() # initialisation avec un son de départ
