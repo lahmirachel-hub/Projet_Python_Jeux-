@@ -308,7 +308,7 @@ def afficher_fin():
     rect = texte.get_rect(center=(LARGEUR_GRILLE // 2, HAUTEUR_GRILLE // 2))
     fenetre.blit(texte, rect)
 
-# fonction d'affichage d'un message défaite + écran  
+# fonction d'affichage d'un message défaite + écran  condition de défaite
 def afficher_defaite():
     fenetre.fill((0, 0, 139))  # définition d'un écran bleu
     police_defaite = pygame.font.SysFont("Arial", 80)
