@@ -1,15 +1,18 @@
 import pygame
 import sys
 import random
-from classes import Joueur, Room as ImportedRoom, TreasureRoom, TrapRoom
+from classes import Joueur
+from classes import Salle 
+from collections import deque
+from classes import COLLECTABLES_CATALOGUE, ObjetCollectable
 import os
 pygame.init()
 pygame.mixer.init()
 
 
 
-# Dimensions
-TAILLE_CASE = 45
+# Dimensions de la grille du jeux 
+TAILLE_CASE = 60
 NB_LIGNES, NB_COLONNES = 9, 5
 LARGEUR_GRILLE = NB_COLONNES * TAILLE_CASE
 HAUTEUR_GRILLE = NB_LIGNES * TAILLE_CASE
@@ -19,7 +22,7 @@ HAUTEUR_MENU = 200
 LARGEUR_FENETRE = LARGEUR_GRILLE + 300
 HAUTEUR_FENETRE = HAUTEUR_GRILLE + HAUTEUR_MENU
 
-# Crée la fenêtre AVANT de charger les images
+# Géneration de la fenêtre AVANT de charger les images
 fenetre = pygame.display.set_mode((LARGEUR_FENETRE, HAUTEUR_FENETRE))
 pygame.display.set_caption("Blue Prince")
 
@@ -33,7 +36,7 @@ VIOLET = (186, 85, 211)
 MARRON = (160, 82, 45)
 OR = (218, 165, 32)
 GRIS_FONCE = (105, 105, 105)
-# Autres
+# Lignes nécessaire au choix des pièces après tirage alétoire 
 selection_piece = False
 index_selection = 0
 choix_pieces = []
@@ -42,11 +45,22 @@ police = pygame.font.SysFont(None, 24)
 police_titre = pygame.font.SysFont(None, 32)
 
 # Initialisations des sons de start, game over et victory
+
+# Le dossier Sounds est dans le document Projet_Python_Jeux- : attention
+# il faut bien se trouver dans ce dossier avant de run le code, sinon python va afficher qu'il ne trouve 
+# pas les sons dans le chemin donné.  
 son_depart = pygame.mixer.Sound("sounds/start.wav")
 son_victoire = pygame.mixer.Sound("sounds/victory.wav")
 son_defaite = pygame.mixer.Sound("sounds/defeat.wav")
+
+
+
 # Associer au chambre les différentes images :
+
 # Chemins relatifs vers les images (basé sur les fichiers que tu as)
+# Le dossier image est dans le document Projet_Python_Jeux- : attention
+# il faut bien se trouver dans ce dossier avant de run le code, sinon python va afficher qu'il ne trouve 
+# pas les images dans le chemin donné.  
 chemins_images = {
     "Bibliothèque": os.path.join("image", "Study.png"),
     "Couloir": os.path.join("image", "Corridor_Icon.png"),
@@ -77,7 +91,7 @@ catalogue_pieces = [
     {"nom": "Chambre", "image": images_pieces["Chambre"], "description": "Gagnez 2 pas en entrant", "cout": 0, "effet": "gain_steps", "niveau_verrou": niveau_verrou()},
     {"nom": "Coffre", "image": images_pieces["Coffre"], "description": "Nécessite une clé pour entrer", "cout": 0, "effet": None, "niveau_verrou": niveau_verrou()},
     {"nom": "Armurerie", "image": images_pieces["Armurerie"], "description": "Gagnez 1 clé en entrant", "cout": 0, "effet": "gain_key", "niveau_verrou": niveau_verrou()},
-    {"nom": "Cuisine", "image": images_pieces["Cuisine"], "description": "Acheter des fruits", "cout": 0, "effet": "gain_die", "niveau_verrou": niveau_verrou()},
+    {"nom": "Cuisine", "image": images_pieces["Cuisine"], "description": "Gagnez un aliment", "cout": 0, "effet": "gain_nourriture", "niveau_verrou": niveau_verrou()},
     {"nom": "Salle de sport", "image": images_pieces["Salle de sport"], "description": "Mystère", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
     {"nom": "Salle obscure", "image": images_pieces["Salle obscure"], "description": "Salle obscure", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
     {"nom": "Garage", "image": images_pieces["Garage"], "description": "Salle mécanique", "cout": 1, "effet": None, "niveau_verrou": niveau_verrou()},
@@ -85,34 +99,23 @@ catalogue_pieces = [
     {"nom": "Salle des trophées", "image": images_pieces["Salle des trophées"], "description": "Gagnez une gemme", "cout": 2, "effet": "gain_gem", "niveau_verrou": niveau_verrou()}
 ]
 
-# Classe Salle
-class Salle:
-    def __init__(self, nom="Inconnue", image=None, decouverte=False, effet=None, niveau_verrou=0, necessite_cle=False):
-        self.nom = nom
-        self.image = image
-        self.decouverte = decouverte
-        self.effet = effet
-        self.effet_declenche = False
-        self.niveau_verrou = niveau_verrou
-        self.necessite_cle = necessite_cle
-    
-    def declencher_effet(self, joueur):
-        pass
+
     
 
-# Grille du manoir
+# Définition de la grille qui représente le manoir du jeu 
 grille = [[Salle() for _ in range(NB_COLONNES)] for _ in range(NB_LIGNES)]
 grille[8][2] = Salle(nom="Hall d'entrée", image=images_pieces["Hall d'entrée"], decouverte=True)
 grille[0][2] = Salle(nom="Antichambre", image=images_pieces["Antichambre"], decouverte=True)
 
-# Position initiale du joueur
-# Créer une instance de votre joueur
-NB_LIGNES, NB_COLONNES = 9, 5 # Récupérer les dimensions de la grille
-joueur = Joueur("Blue Prince", NB_LIGNES, NB_COLONNES) 
+# Position intiale du joueur 
+NB_LIGNES, NB_COLONNES = 9, 5 # Récupére les dimensions de la grille pour indiquer le domaine de déplacement au joueur
+joueur = Joueur("Blue Prince", NB_LIGNES, NB_COLONNES)  # Le joueur peut se déplacer sur l'interface du jeux (sur toute la grille)
 
-# La position du joueur est maintenant joueur.position
-# L'inventaire est joueur.inventaire
-# Vous pouvez aussi initialiser le Hall d'entrée ici pour la cohérence
+ARRIVEE = (0, 2)   # case correspondante à l'antichambre 
+
+# La position du joueur est maintenant joueur.position. (on a nommé self = joueur)
+# L'inventaire est maintenant joueur.inventaire .
+# On initialise ici le Hall d'entrée (position initiale du joueur).
 grille[joueur.position[0]][joueur.position[1]] = Salle(nom="Hall d'entrée", image=images_pieces["Hall d'entrée"], decouverte=True) 
 
 # Note: Pour que le jeu fonctionne tout de suite, il faut une clé. 
@@ -209,6 +212,41 @@ def afficher_victoire():
     fenetre.blit(texte, rect)
     pygame.display.update()
 
+# fonction pour défaite si bloqué (plus de possibilité d'évoluer vers l'antichambre)
+def chemin_vers_arrivee_existe(grille, joueur, ARRIVEE):
+    nb_lignes = len(grille)
+    nb_colonnes = len(grille[0])
+
+    # Convertir la position du joueur en tuple (obligatoire pour le set)
+    position_depart = (joueur.position[0], joueur.position[1])
+
+    file = deque([position_depart])
+    visites = {position_depart}
+
+    while file:
+        x, y = file.popleft()
+
+        # Si on atteint l’arrivée
+        if (x, y) == ARRIVEE:
+            return True
+
+        # Déplacements possibles (haut, bas, gauche, droite)
+        for dx, dy in [(1,0),(-1,0),(0,1),(0,-1)]:
+            nx, ny = x + dx, y + dy
+
+            if 0 <= nx < nb_lignes and 0 <= ny < nb_colonnes:
+
+                salle = grille[nx][ny]
+
+                accessible = True
+                if salle.necessite_cle and joueur.inventaire["Clés"] <= 0:
+                    accessible = False
+
+                if accessible and (nx, ny) not in visites:
+                    visites.add((nx, ny))
+                    file.append((nx, ny))
+
+    return False
 
 # Boucle principale
 def principal():
@@ -242,9 +280,14 @@ def principal():
                                 print(f"Pas assez de clés pour placer {choix['nom']} (niveau {verrou})")
                             else:
                                 joueur.inventaire["Gemmes"] -= cout
+                                print(f"-{cout} gemme(s) dépensée(s). Gemmes restantes : {joueur.inventaire['Gemmes']}")
+
                                 if verrou > 0:
                                     joueur.inventaire["Clés"] -= verrou
-                                    print(f"Clé utilisée pour placer {choix['nom']}")
+                                    print(f"-{verrou} clé(s) utilisée(s). Clés restantes : {joueur.inventaire['Clés']}")
+                            
+
+                                
 
                                 # Déterminer la classe à utiliser
                                 classe_salle = choix.get("class", Salle) 
@@ -268,15 +311,34 @@ def principal():
                                 if nouvelle_salle.effet == "gain_steps":
                                     joueur.inventaire["Pas"] += 2
                                     nouvelle_salle.effet_declenche = True
-                                    print("Effet immédiat : +2 pas")
+                                    print("Youpi! +2 pas")
                                 elif nouvelle_salle.effet == "gain_key":
                                     joueur.inventaire["Clés"] += 1
                                     nouvelle_salle.effet_declenche = True
-                                    print("Effet immédiat : +1 clé")
+                                    print("Youpi!  +1 clé")
                                 elif nouvelle_salle.effet == "gain_die":
                                     joueur.inventaire["Dés"] += 1
                                     nouvelle_salle.effet_declenche = True
-                                    print("Effet immédiat : +1 dé")
+                                    print("Youpi! +1 dé")
+                                elif nouvelle_salle.effet == "gain_gem":
+                                    joueur.inventaire["Gemmes"] += 1
+                                    nouvelle_salle.effet_declenche = True
+                                    print("Youpi!  +1 gemme")
+                                
+                                elif nouvelle_salle.effet == "gain_nourriture" and not nouvelle_salle.effet_declenche:
+                                    # Choisir un aliment au hasard
+                                    aliment = random.choice(["Pomme", "Banane", "Gâteau", "Sandwich", "Repas"])
+                                    # Trouver l'objet correspondant dans le catalogue
+                                    for obj in COLLECTABLES_CATALOGUE:
+                                        if obj.nom == aliment:
+                                            obj.appli_effets(joueur)  # ajoute l'aliment à l'inventaire
+                                            # Afficher le nombre de pas gagnés
+                                            if obj.resource_cle == "Pas":
+                                                print(f"Nombre de pas gagnés : {obj.montant}")
+                                            break
+                                    nouvelle_salle.effet_declenche = True
+                                    print(f"Vous avez trouvé un aliment : {aliment} !")
+
 
                                 grille[ligne][colonne] = nouvelle_salle
                                 selection_piece = False
@@ -327,20 +389,24 @@ def principal():
                     elif salle_cible.effet == "gain_steps" and not salle_cible.effet_declenche:
                         joueur.inventaire["Pas"] += 2
                         salle_cible.effet_declenche = True
-                        print("Effet activé : +2 pas")
+                        print("Youpi! : +2 pas")
                     elif salle_cible.effet == "gain_key" and not salle_cible.effet_declenche:
                         joueur.inventaire["Clés"] += 1
                         salle_cible.effet_declenche = True
-                        print("Effet activé : +1 clé")
+                        print("Youpi! +1 clé")
                     elif salle_cible.effet == "gain_die" and not salle_cible.effet_declenche:
                         joueur.inventaire["Dés"] += 1
                         salle_cible.effet_declenche = True
-                        print("Effet activé : +1 dé")
+                        print("Youpi! +1 dé")
 
         afficher_grille()
         afficher_inventaire()
         afficher_choix_pieces()
-        if joueur.inventaire["Pas"] <= 0:
+
+        salle_actuelle = grille[joueur.position[0]][joueur.position[1]]
+
+
+        if joueur.inventaire["Pas"] <= 0 :
              print("Défaite 😢😢 Plus de pas disponibles")
              son_defaite.play()   # joue le son de défaite
              afficher_defaite()   # écran bleu avec texte Défaite
@@ -348,6 +414,8 @@ def principal():
              pygame.quit()
              sys.exit()
         salle_actuelle = grille[joueur.position[0]][joueur.position[1]]
+
+
         if salle_actuelle.necessite_cle and joueur.inventaire["Clés"] <= 0:
             print("Défaite ! Vous n'avez plus de clés pour entrer dans cette salle")
             son_defaite.play()
@@ -355,6 +423,13 @@ def principal():
             pygame.time.wait(3000)
             pygame.quit()
             sys.exit() 
+        
+       
+                    
+                
+        
+
+        
 
         if joueur.position == [0, 2]:  # condition de victoire
             print("Victoire ! Vous avez atteint l'Antichambre !")
